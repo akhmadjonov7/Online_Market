@@ -1,4 +1,4 @@
-package uz.pdp.categoryCrude.rest;
+package uz.pdp.rest;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

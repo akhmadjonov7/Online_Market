@@ -6,7 +6,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.categoryCrude.model.Category;
-import uz.pdp.categoryCrude.rest.Api;
+import uz.pdp.rest.Api;
 import uz.pdp.categoryCrude.service.CategoryService;
 
 import java.util.List;
