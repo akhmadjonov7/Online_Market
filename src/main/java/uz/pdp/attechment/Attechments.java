@@ -1,4 +1,4 @@
-package uz.pdp.attechment;
-
-public class Attechments {
-}
+//package uz.pdp.attechment;
+//
+//public class Attechments {
+//}

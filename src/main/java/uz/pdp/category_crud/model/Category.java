@@ -1,7 +1,8 @@
-package uz.pdp.categoryCrude.model;
+package uz.pdp.category_crud.model;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,8 +20,8 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id ;
     @Column(nullable = false)
+    @NotBlank
     private String name;
-
     @ManyToOne
     private  Category parent_id;
 }

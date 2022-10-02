@@ -1,4 +1,4 @@
-package uz.pdp.brand.model;
+package uz.pdp.brand_crud.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

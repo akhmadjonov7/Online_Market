@@ -1,4 +1,4 @@
-package uz.pdp.brand.dto;
+package uz.pdp.brand_crud.dto;
 
 
 import lombok.AllArgsConstructor;
@@ -7,8 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-
 @AllArgsConstructor @NoArgsConstructor @Data @Builder
 public class BrandDto {
     private Integer id;
@@ -16,6 +14,10 @@ public class BrandDto {
     private String name;
 
     private String owner;
+
+    private String logo_url;
+
+    private MultipartFile logo;
 
     private String about;
 }

@@ -1,12 +1,12 @@
-package uz.pdp.categoryCrude.service;
+package uz.pdp.category_crud.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import uz.pdp.categoryCrude.model.Category;
-import uz.pdp.categoryCrude.repo.CategoryRepository;
+import uz.pdp.category_crud.model.Category;
+import uz.pdp.category_crud.repo.CategoryRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -14,8 +14,8 @@ import java.util.Optional;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
 
-    public List<Category> allCategory() {
-        return categoryRepository.findAll();
+    public Page<Category> allCategory(int page, int size) {
+        return categoryRepository.findAll(PageRequest.of(page, size));
     }
 
     public boolean addCategory(Category category) {
