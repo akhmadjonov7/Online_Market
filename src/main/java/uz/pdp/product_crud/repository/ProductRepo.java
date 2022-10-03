@@ -8,6 +8,6 @@ import uz.pdp.product_crud.projection.ProductProjection;
 import java.util.List;
 
 public interface ProductRepo extends JpaRepository<Product, Integer> {
-    @Query(value = "select id,name,price,img_url as imgUrl from products limit :size offset (:page - 1 * :size) ",nativeQuery = true)
+    @Query(value = "select p.id, p.name,p.price,i.photo_name as imgUrl from products p join products_image pi on p.id = pi.products_id join images i on pi.image_id = i.id limit :size offset (:page - 1 ) * :size",nativeQuery = true)
     List<ProductProjection> getProducts(int page, int size);
 }
