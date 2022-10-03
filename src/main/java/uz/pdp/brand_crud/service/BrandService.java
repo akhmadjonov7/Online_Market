@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 import static uz.pdp.UploadDirectory.UPLOAD_DIRECTORY;
@@ -25,16 +26,17 @@ public class BrandService {
         brandRepo.save(brand);
     }
 
-    public Page<Brand> getAllBrands(int size, int page) {
-        Pageable pageable = PageRequest.of(page,size);
+    public Page<Brand> getAllBrands(int size, int page){
+        Pageable pageable = PageRequest.of(page-1,size);
         Page<Brand> brandPage = brandRepo.findAll(pageable);
         return brandPage;
     }
 
     public boolean delete(int id) {
         try {
-            String logo_url = brandRepo.removeBrandById(id);
-            File file = new File(UPLOAD_DIRECTORY + logo_url);
+            Optional<Brand> brand = brandRepo.findById(id);
+            brandRepo.deleteById(id);
+            File file = new File(UPLOAD_DIRECTORY + brand.get().getImage().getPhotoName());
             file.delete();
             return true;
         } catch (Exception e) {
@@ -71,5 +73,9 @@ public class BrandService {
         image = ImageIO.read(file);
         System.out.println(image.getHeight());
         return (MultipartFile) image;
+    }
+
+    public void update(Brand brand) {
+
     }
 }

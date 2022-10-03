@@ -6,6 +6,4 @@ import uz.pdp.brand_crud.model.Brand;
 
 
 public interface BrandRepo extends JpaRepository<Brand,Integer> {
-    @Query(value = "delete from brands where id = :id returning logo_url", nativeQuery = true)
-    String removeBrandById(Integer id);
 }

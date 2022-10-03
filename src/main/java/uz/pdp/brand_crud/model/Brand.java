@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uz.pdp.attechment.model.ImageData;
 
 
 @AllArgsConstructor
@@ -21,8 +22,8 @@ public class Brand {
     private String name;
     @Column(nullable = false)
     private String owner;
-    @Column(nullable = false)
-    private String logo_url;
+    @OneToOne(cascade = CascadeType.REMOVE)
+    private ImageData image;
     @Column(columnDefinition = "text")
     private String about;
 }

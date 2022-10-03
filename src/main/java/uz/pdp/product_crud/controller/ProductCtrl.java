@@ -41,4 +41,8 @@ public class ProductCtrl {
         }
         return ResponseEntity.ok(new Api("",true,productProjections));
     }
+    @GetMapping("/{id}")
+    public HttpEntity<?> showProductById(@PathVariable Integer id){
+        return null;
+    }
 }
