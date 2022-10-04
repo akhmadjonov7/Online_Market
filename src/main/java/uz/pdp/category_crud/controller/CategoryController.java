@@ -46,6 +46,7 @@ public class CategoryController {
     @PutMapping("/editsave")
     public HttpEntity<?> editsave(@RequestBody Category category,BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
+            System.out.println("salom");
             return ResponseEntity.ok(new Api("",false,bindingResult.getAllErrors()));
         }
         boolean update = categoryService.addCategory(category);
