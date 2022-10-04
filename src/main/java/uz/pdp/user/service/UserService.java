@@ -1,7 +1,7 @@
 package uz.pdp.user.service;
 
-import com.example.demo.user.model.User;
-import com.example.demo.user.repository.UserRepo;
+import uz.pdp.user.model.User;
+import uz.pdp.user.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

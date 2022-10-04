@@ -1,7 +1,7 @@
 package uz.pdp.user.validation;
 
 
-import com.example.demo.user.dto.UserDto;
+import uz.pdp.user.dto.UserDto;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

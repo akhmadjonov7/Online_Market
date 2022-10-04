@@ -1,6 +1,6 @@
 package uz.pdp.user.dto;
 
-import com.example.demo.user.validation.PasswordsMatch;
+import uz.pdp.user.validation.PasswordsMatch;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
