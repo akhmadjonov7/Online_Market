@@ -13,6 +13,10 @@ import java.util.Optional;
 public class FeatureService {
     private final FeatureRepo featureRepo;
     public void save(List<Feature> featureList) {
+        for (Feature feature : featureList) {
+            System.out.println(feature);
+        }
+
         featureRepo.saveAll(featureList);
     }
 
@@ -20,9 +24,9 @@ public class FeatureService {
             featureRepo.deleteById(id);
     }
 
-    public Feature getFeatureById(int id) {
+    public Optional<Feature> getFeatureById(int id) {
         Optional<Feature> featureById = featureRepo.findById(id);
-        return featureById.get();
+        return featureById;
     }
 
     public List<Feature> getProductFeatures(int productId){

@@ -48,34 +48,4 @@ public class BrandService {
         Optional<Brand> brandById = brandRepo.findById(id);
         return brandById.get();
     }
-    public String uploadAndGetPath(MultipartFile image){
-        File uploadDir = new File(UPLOAD_DIRECTORY);
-        if (!uploadDir.exists())
-            uploadDir.mkdirs();
-        int index = image.getOriginalFilename().lastIndexOf('.');
-        String extension = image.getOriginalFilename().substring(index + 1);
-        String imgName = System.currentTimeMillis() + "." + extension;
-        String imgPath = uploadDir.getPath() + "/" + imgName;
-        try {
-            image.transferTo(Path.of(imgPath));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return imgName;
-    }
-    @SneakyThrows
-    public MultipartFile getImage(String name){
-        if (name==null) {
-            return null;
-        }
-        BufferedImage image = null;
-        File file = new File(UPLOAD_DIRECTORY + name);
-        image = ImageIO.read(file);
-        System.out.println(image.getHeight());
-        return (MultipartFile) image;
-    }
-
-    public void update(Brand brand) {
-
-    }
 }
