@@ -1,5 +1,6 @@
 package uz.pdp.feature_crud.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,7 @@ import uz.pdp.product_crud.entity.Product;
 @NoArgsConstructor
 @Data
 @Builder
-@Entity
+@Entity(name = "features")
 public class Feature {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +23,6 @@ public class Feature {
     private String title;
     @NotBlank
     private String name;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
 }
