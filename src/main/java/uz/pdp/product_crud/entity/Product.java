@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uz.pdp.attechment.model.ImageData;
 import uz.pdp.brand_crud.model.Brand;
 import uz.pdp.category_crud.model.Category;
 import uz.pdp.feature_crud.entity.Feature;
@@ -25,8 +24,7 @@ public class Product {
 
     private Integer amount;
 
-    @OneToMany(cascade = CascadeType.REMOVE)
-    private List<ImageData> image;
+    private String img_url;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE)
     private List<Feature> feature;
