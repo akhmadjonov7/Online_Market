@@ -1,9 +1,9 @@
 package uz.pdp.user.controller;
 
-import com.example.demo.user.dto.UserDto;
-import com.example.demo.user.model.User;
-import com.example.demo.user.rest.api;
-import com.example.demo.user.service.UserService;
+import uz.pdp.user.dto.UserDto;
+import uz.pdp.user.model.User;
+import uz.pdp.user.rest.api;
+import uz.pdp.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
