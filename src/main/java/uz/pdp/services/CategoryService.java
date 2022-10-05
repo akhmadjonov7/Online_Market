@@ -15,7 +15,7 @@ public class CategoryService {
     private final CategoryRepo categoryRepo;
 
     public Page<Category> allCategory(int page, int size) {
-        return categoryRepo.findAll(PageRequest.of(page, size));
+        return categoryRepo.findAll(PageRequest.of(page-1, size));
     }
 
     public boolean addCategory(Category category) {
