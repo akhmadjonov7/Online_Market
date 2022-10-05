@@ -33,7 +33,7 @@ public class CategoryCtrl {
         return ResponseEntity.ok(new Api("", true, null));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public HttpEntity<?> delete(@PathVariable int id) {
         boolean delete = categoryService.deleteCategory(id);
         if (delete) {
@@ -43,8 +43,8 @@ public class CategoryCtrl {
     }
 
 
-    @PutMapping("/editsave")
-    public HttpEntity<?> editsave(@RequestBody Category category,BindingResult bindingResult) {
+    @PutMapping()
+    public HttpEntity<?> editSave(@RequestBody Category category,BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.ok(new Api("",false,bindingResult.getAllErrors()));
         }
@@ -53,6 +53,15 @@ public class CategoryCtrl {
             return ResponseEntity.ok(new Api("", true, null));
         }
         return ResponseEntity.ok(new Api("Not Found",false,null));
+    }
+
+    @GetMapping("/{id}")
+    public HttpEntity<?> getCategoryById(@PathVariable int id){
+        Category category = categoryService.getById(id);
+        if (category==null) {
+            return ResponseEntity.ok(new Api("Not Found",false,null));
+        }
+        return ResponseEntity.ok(new Api("",true,category));
     }
 
 

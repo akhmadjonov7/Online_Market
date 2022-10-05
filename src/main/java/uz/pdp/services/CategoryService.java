@@ -37,10 +37,11 @@ public class CategoryService {
         }
     }
 
-    public Object getById(int id) {
+    public Category getById(int id) {
         Optional<Category> byId = categoryRepo.findById(id);
+        if (byId.isEmpty()) {
+            return null;
+        }
         return byId.get();
     }
-
-
 }
