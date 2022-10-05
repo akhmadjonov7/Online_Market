@@ -6,9 +6,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uz.pdp.entities.Brand;
+import uz.pdp.projections.BrandProjection;
 import uz.pdp.repositories.BrandRepo;
 
 import java.io.*;
+import java.util.List;
 import java.util.Optional;
 
 import static uz.pdp.util.UploadDirectory.UPLOAD_DIRECTORY;
@@ -21,9 +23,11 @@ public class BrandService {
         brandRepo.save(brand);
     }
 
-    public Page<Brand> getAllBrands(int size, int page){
-        Pageable pageable = PageRequest.of(page-1,size);
-        Page<Brand> brandPage = brandRepo.findAll(pageable);
+    public Page<BrandProjection> getAllBrands(int size, int page){
+        Page<BrandProjection> brandPage = brandRepo.getBrands(PageRequest.of(page-1, size));
+        if (brandPage.isEmpty()) {
+            return null;
+        }
         return brandPage;
     }
 
@@ -39,8 +43,22 @@ public class BrandService {
         }
     }
 
-    public Brand getBrandById(int id) {
-        Optional<Brand> brandById = brandRepo.findById(id);
+    public BrandProjection getBrandById(int id) {
+        Optional<BrandProjection> brandById = brandRepo.getBrandById(id);
+        System.out.println(brandById.get());
+        if (brandById.isEmpty()) {
+            return null;
+        }
         return brandById.get();
+    }
+    public BrandProjection getBrandByIdWithoutImage(int id) {
+        Optional<BrandProjection> brandById = brandRepo.getBrandByIdWithoutImage(id);
+        if (brandById.isEmpty()) {
+            return null;
+        }
+        return brandById.get();
+    }
+    public Integer getBrandImageId(Integer id){
+        return brandRepo.getBrandImageId(id);
     }
 }

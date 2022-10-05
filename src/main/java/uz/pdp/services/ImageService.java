@@ -41,8 +41,8 @@ public class ImageService {
             throw new RuntimeException(e);
         }
         imageData.setPhotoName(imgName);
-        ImageData save = imageRepo.save(imageData);
-        return save;
+        return imageRepo.save(imageData);
+
     }
 
     public ImageDataDto getImage(String image) {
