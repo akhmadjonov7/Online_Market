@@ -37,7 +37,8 @@ public class UserCtrl {
     }
 
     @GetMapping
-    public HttpEntity<?> getAllUsers(@RequestParam(name = "page",defaultValue = "1") int page, @RequestParam(name = "size",defaultValue = "5") int size) {
+    public HttpEntity<?> getAllUsers(@RequestParam(name = "page",defaultValue = "1") int page,
+                                     @RequestParam(name = "size",defaultValue = "5") int size) {
         Page<User> userList = userService.getAllUsers(page,size);
         return ResponseEntity.ok(new Api("", true, userList));
     }

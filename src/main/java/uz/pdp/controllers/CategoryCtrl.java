@@ -19,7 +19,8 @@ public class CategoryCtrl {
     private final CategoryService categoryService;
 
     @GetMapping
-    public HttpEntity<?> showCategoriesList(@RequestParam (name = "page",defaultValue = "1") int page, @RequestParam(name = "size",defaultValue = "1") int size) {
+    public HttpEntity<?> showCategoriesList(@RequestParam (name = "page",defaultValue = "1") int page,
+                                            @RequestParam(name = "size",defaultValue = "1") int size) {
         Page<Category> categoryPage = categoryService.allCategory(page, size);
         return ResponseEntity.ok(new Api("", true, categoryPage));
     }

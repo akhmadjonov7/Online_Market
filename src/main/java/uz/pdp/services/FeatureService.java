@@ -3,6 +3,7 @@ package uz.pdp.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uz.pdp.entities.Feature;
+import uz.pdp.projections.FeatureProjection;
 import uz.pdp.repositories.FeatureRepo;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class FeatureService {
         return featureById;
     }
 
-    public List<Feature> getProductFeatures(int productId){
+    public List<FeatureProjection> getProductFeatures(int productId){
         return featureRepo.findFeaturesById(productId);
     }
 }
