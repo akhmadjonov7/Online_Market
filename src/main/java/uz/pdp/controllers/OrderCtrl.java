@@ -18,49 +18,48 @@ import javax.validation.Valid;
 @RequestMapping("/orders")
 public class OrderCtrl {
 
-    private  final OrderService orderService;
+    private final OrderService orderService;
 
     @GetMapping
-    public HttpEntity<?> showAllOrder (@RequestParam(name = "page", defaultValue = "1") int page,
-                                       @RequestParam(name = "size",defaultValue = "5") int size
+    public HttpEntity<?> showAllOrder(@RequestParam(name = "page", defaultValue = "1") int page,
+                                      @RequestParam(name = "size", defaultValue = "5") int size
     ) {
-        Page<Order> orderModelList = orderService.orderModelList(page,size);
-        return ResponseEntity.ok(new Api("",true,orderModelList) );
+        Page<Order> orderModelList = orderService.orderModelList(page, size);
+        return ResponseEntity.ok(new Api("", true, orderModelList));
     }
 
 
-@PostMapping
-    public HttpEntity<?> addNew (@Valid @RequestBody Order order, BindingResult bindingResult ) {
+    @PostMapping
+    public HttpEntity<?> addNew(@Valid @RequestBody Order order, BindingResult bindingResult) {
         try {
             orderService.addOrder(order);
-            return ResponseEntity.ok(new Api("",true,null ));
+            return ResponseEntity.ok(new Api("", true, null));
 
         } catch (Exception e) {
-            return ResponseEntity.ok(new Api("",false,null));
+            return ResponseEntity.ok(new Api("", false, null));
         }
-}
+    }
 
 
-@DeleteMapping("/delete{id}")
-    public  HttpEntity<?> deleteById (@PathVariable  int id ) {
-     boolean delete =    orderService.deleteById(id);
-        return ResponseEntity.ok(new Api("",true,null));
-}
+    @DeleteMapping("/delete{id}")
+    public HttpEntity<?> deleteById(@PathVariable int id) {
+        boolean delete = orderService.deleteById(id);
+        return ResponseEntity.ok(new Api("", true, null));
+    }
 
 
+    @PutMapping("/edit")
 
-@PutMapping("/edit")
-
-    public HttpEntity<?> editById ( @RequestBody Order order) {
-        boolean update  = orderService.addOrder(order);
+    public HttpEntity<?> editById(@RequestBody Order order) {
+        boolean update = orderService.addOrder(order);
         if (update) {
-            return ResponseEntity.ok(new Api("",false,null));
+            return ResponseEntity.ok(new Api("", false, null));
 
-        }else {
-            return ResponseEntity.ok(new Api("",false,null));
+        } else {
+            return ResponseEntity.ok(new Api("", false, null));
 
         }
 
-}
+    }
 
 }

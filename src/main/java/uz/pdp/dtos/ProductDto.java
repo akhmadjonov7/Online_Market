@@ -5,9 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import uz.pdp.entities.Feature;
-import uz.pdp.entities.ImageData;
-import uz.pdp.projections.FeatureProjection;
+import uz.pdp.entities.CharacteristicsChValues;
 import uz.pdp.projections.ImageDataProjection;
 
 import java.util.List;
@@ -30,7 +28,7 @@ public class ProductDto {
     private Integer brandId;
     private String brandName;
 
-    private List<FeatureProjection> features;
-    private List<Feature> feature;
+    private List<CharacteristicChValueDto> characteristicsChValues;
+
     private List<ImageDataProjection> images;
 }

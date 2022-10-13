@@ -42,7 +42,6 @@ public class ImageService {
         }
         imageData.setPhotoName(imgName);
         return imageRepo.save(imageData);
-
     }
 
     public ImageDataDto getImage(String image) {

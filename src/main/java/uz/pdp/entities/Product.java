@@ -1,36 +1,34 @@
 package uz.pdp.entities;
 
 import javax.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
+import uz.pdp.entities.template.AbsNameEntity;
 
 import java.util.List;
 
 @AllArgsConstructor @NoArgsConstructor @Data @Builder
 @Entity(name = "products")
-public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    private String name;
+@EqualsAndHashCode(callSuper = true)
+public class Product extends AbsNameEntity {
 
     private Double price;
 
     private Integer amount;
 
+    @OneToOne(cascade = CascadeType.REMOVE)
+    private ImageData mainImage;
+
     @OneToMany(cascade = CascadeType.REMOVE)
     private List<ImageData> image;
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE)
-    private List<Feature> feature;
 
     @ManyToOne
     private Category category;
 
     @ManyToOne
     private Brand brand;
+
+    @ManyToMany
+    private List<CharacteristicsChValues> characteristicsChValues;
 
 }

@@ -2,10 +2,9 @@ package uz.pdp.entities;
 
 
 import javax.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
+import uz.pdp.entities.template.AbsEntity;
 
 import java.util.Date;
 
@@ -15,13 +14,8 @@ import java.util.Date;
 @Builder
 @Entity
 @Table (name = "orders")
-
-public class Order {
-
-    @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
-
-    private Integer id;
+@EqualsAndHashCode(callSuper = true)
+public class Order extends AbsEntity {
 
 
     @Column(nullable = false)
