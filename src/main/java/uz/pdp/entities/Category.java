@@ -2,9 +2,8 @@ package uz.pdp.entities;
 
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-
 import lombok.*;
+import uz.pdp.entities.template.AbsNameEntity;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,13 +12,8 @@ import lombok.*;
 @Setter
 @ToString
 @Entity(name = "categories")
-public class Category {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id ;
-    @Column(nullable = false)
-    @NotBlank
-    private String name;
+@EqualsAndHashCode(callSuper = true)
+public class Category extends AbsNameEntity {
     @ManyToOne
     private  Category parent;
 }

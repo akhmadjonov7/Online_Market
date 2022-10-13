@@ -18,12 +18,10 @@ import uz.pdp.services.ImageService;
 import uz.pdp.entities.Brand;
 import uz.pdp.util.Api;
 import uz.pdp.services.BrandService;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import static uz.pdp.util.UploadDirectory.UPLOAD_DIRECTORY;
 
 @Controller
@@ -40,17 +38,11 @@ public class BrandCtrl {
                                 @RequestPart("brand") String brandJson) {
         ObjectMapper objectMapper = new ObjectMapper();
         Brand brand = objectMapper.readValue(brandJson, Brand.class);
-        if (image != null) {
-            ImageData logo = imageService.save(image);
-            brand.setImage(logo);
-        } else {
-            Path path = Paths.get("src/main/resources/image/download.png");
-            MultipartFile defaultImage = new MockMultipartFile("download.png", "download.png",
-                    "image/png", Files.readAllBytes(path));
-            ImageData save = imageService.save(defaultImage);
-            brand.setImage(save);
+        try {
+            brandService.save(brand,image);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
-        brandService.save(brand);
         return ResponseEntity.ok(new Api("", true, null));
     }
 
@@ -67,7 +59,7 @@ public class BrandCtrl {
         if (delete) {
             return ResponseEntity.ok(new Api("", true, null));
         }
-        return ResponseEntity.ok(new Api("", false, null));
+        return ResponseEntity.ok(new Api("You cannot delete this brand", false, null));
     }
 
     @GetMapping("/{id}")
@@ -87,14 +79,19 @@ public class BrandCtrl {
         ObjectMapper objectMapper = new ObjectMapper();
         Brand brand = objectMapper.readValue(brandJson, Brand.class);
         BrandProjection brandById = brandService.getBrandById(brand.getId());
+        ImageData imageData = new ImageData();
+        imageData.setId(brandById.getImageId());
+        imageData.setPhotoName(brandById.getImagePath());
         if (image != null) {
                 image.transferTo(new File(UPLOAD_DIRECTORY + brandById.getImagePath()));
-                brand.setImage(new ImageData(brandById.getImageId(), brandById.getImagePath(), image.getContentType()));
+                imageData.setContentType(image.getContentType());
+                brand.setImage(imageData);
         } else {
-            brand.setImage(new ImageData(brandById.getImageId(), brandById.getImagePath(),
-                    brandById.getImageContentType()));
+            imageData.setContentType(brandById.getImageContentType());
+            brand.setImage(imageData);
         }
-        brandService.save(brand);
+        imageData.setId(brandById.getImageId());
+        brandService.save(brand, image);
         return ResponseEntity.ok(new Api("", true, null));
     }
 }

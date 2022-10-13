@@ -1,20 +1,17 @@
 package uz.pdp.entities;
 
 import javax.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
+import uz.pdp.entities.template.AbsEntity;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
 @Entity(name = "images")
-public class ImageData {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+@EqualsAndHashCode(callSuper = true)
+public class ImageData extends AbsEntity {
 
     private String photoName;
 
