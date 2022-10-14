@@ -21,8 +21,10 @@ public interface ImageRepo extends JpaRepository<ImageData, Integer> {
             nativeQuery = true)
     List<ImageDataProjection> getProductImages(Integer id);
 
-    @Query(value = "select i.photo_name as photoName from images i " +
-            "join products_image pi on i.id = pi.image_id where pi.products_id = :id",
+
+
+
+    @Query(value = "delete from images where id = :imageId",
     nativeQuery = true)
-    ImageDataProjection getGetProductFirstImage(Integer id);
+    void deleteProductImages(Integer imageId);
 }

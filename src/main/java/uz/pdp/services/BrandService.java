@@ -62,7 +62,6 @@ public class BrandService {
 
     public BrandProjection getBrandById(int id) {
         Optional<BrandProjection> brandById = brandRepo.getBrandById(id);
-        System.out.println(brandById.get());
         if (brandById.isEmpty()) {
             return null;
         }

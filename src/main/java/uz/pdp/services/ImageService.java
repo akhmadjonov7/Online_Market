@@ -4,14 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uz.pdp.entities.ImageData;
-import uz.pdp.dtos.ImageDataDto;
-import uz.pdp.projections.ImageDataProjection;
+import uz.pdp.entities.Product;
 import uz.pdp.repositories.ImageRepo;
+import uz.pdp.repositories.ProductRepo;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -24,6 +20,7 @@ import static uz.pdp.util.UploadDirectory.UPLOAD_DIRECTORY;
 @RequiredArgsConstructor
 public class ImageService {
     private final ImageRepo imageRepo;
+    private final ProductRepo productRepo;
 
     public ImageData save(MultipartFile image) {
         ImageData imageData = new ImageData();
@@ -44,24 +41,6 @@ public class ImageService {
         return imageRepo.save(imageData);
     }
 
-    public ImageDataDto getImage(String image) {
-        File file = new File(UPLOAD_DIRECTORY + image);
-        try {
-            BufferedImage read = ImageIO.read(file);
-            WritableRaster raster = read.getRaster();
-            DataBufferByte dataBuffer = (DataBufferByte) raster.getDataBuffer();
-            ImageDataProjection imageDataProjection = imageRepo.showImageDataByPhotoName(image);
-            ImageDataDto imageDataDto = ImageDataDto.builder()
-                    .id(imageDataProjection.getId())
-                    .photoName(imageDataProjection.getPhotoName())
-                    .contentType(imageDataProjection.getContentType())
-                    .data(dataBuffer.getData())
-                    .build();
-            return imageDataDto;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public List<ImageData> saveAll(List<MultipartFile> imageList) {
         List<ImageData> imageDataList = new ArrayList<>();
@@ -86,4 +65,5 @@ public class ImageService {
         }
         return imageDataList;
     }
+
 }

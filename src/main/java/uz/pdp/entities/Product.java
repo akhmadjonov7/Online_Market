@@ -19,7 +19,7 @@ public class Product extends AbsNameEntity {
     @OneToOne(cascade = CascadeType.REMOVE)
     private ImageData mainImage;
 
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<ImageData> image;
 
     @ManyToOne
