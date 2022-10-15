@@ -15,14 +15,14 @@ import javax.validation.constraints.NotBlank;
 @PasswordsMatch(message = "Passwords don't match")
 public class UserDto {
 
-
+    @NotBlank
     private Integer id;
 
     @NotBlank
     private String full_name;
 
     @NotBlank
-    private String username;
+    private String phone_number;
 
 //    @NotBlank
     private Integer password;
