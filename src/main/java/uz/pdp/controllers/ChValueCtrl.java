@@ -35,16 +35,16 @@ public class ChValueCtrl {
             }
         }
         if (cannotAdd.size() == 0) {
-            return ResponseEntity.ok("Added!!!");
+            return ResponseEntity.ok(new Api("Added!!!",true,null));
         }
         return ResponseEntity.ok(new Api("This values has already had", true, cannotAdd));
     }
 
-    @GetMapping
+    @GetMapping("/edit")
     public HttpEntity<?> getAllValuesForEdit(@RequestParam(name = "size", defaultValue = "5") int size, @RequestParam(name = "page", defaultValue = "1") int page) {
         Page<CharacteristicValue> allChValues = chValueService.getAllChValues(size, page);
         if (allChValues.isEmpty()) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(new Api("",true,null));
         }
         return ResponseEntity.ok(new Api("", true, allChValues));
     }
@@ -65,8 +65,17 @@ public class ChValueCtrl {
         }
         boolean update = chValueService.update(chValueDto);
         if (update) {
-            return ResponseEntity.ok("Updated!!!");
+            return ResponseEntity.ok(new Api("Edited",true,null));
         }
         return ResponseEntity.ok(new Api("This value not found", false, null));
+    }
+
+    @DeleteMapping("/{id}")
+    public HttpEntity<?> deleteChValue(@PathVariable Integer id){
+        boolean delete = chValueService.delete(id);
+        if (delete) {
+            return ResponseEntity.ok(new Api("Deleted!!!",true,null));
+        }
+        return ResponseEntity.ok(new Api("You cannot delete this value!!!",false,null));
     }
 }

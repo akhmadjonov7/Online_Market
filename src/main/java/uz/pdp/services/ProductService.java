@@ -51,20 +51,18 @@ public class ProductService {
             Path path = Paths.get("src/main/resources/image/download.png");
             MultipartFile defaultImage = new MockMultipartFile("download.png", "download.png",
                     "image/png", Files.readAllBytes(path));
-            ImageData save = imageService.save(defaultImage);
-            product.setImage((List.of(save)));
-            product.setMainImage(save);
+            ImageData saveImage = imageService.save(defaultImage);
+            product.setImage(List.of(saveImage));
+            product.setMainImage(saveImage);
         } else {
-            List<ImageData> save = imageService.saveAll(imageList);
-            product.setMainImage(save.get(0));
-            product.setImage(save);
+            List<ImageData> saveImage = imageService.saveAll(imageList);
+            product.setImage(saveImage);
+            product.setMainImage(saveImage.get(0));
         }
         List<CharacteristicsChValues> characteristicsChValues = new ArrayList<>();
-        for ( CharacteristicChValueDto chValueDto : productDto.getCharacteristicsChValues()) {
-            Integer characteristicId = charactreristicChValueRepo.getCharacteristicId(chValueDto.getCharacteristicId(), chValueDto.getCharacteristicValueId());
-            CharacteristicsChValues chValues = new CharacteristicsChValues();
-            chValues.setId(characteristicId);
-            characteristicsChValues.add(chValues);
+        for (CharacteristicChValueDto chValueDto : productDto.getCharacteristicsChValues()) {
+            CharacteristicsChValues characteristicId = charactreristicChValueRepo.getCharacteristicId(chValueDto.getCharacteristicId(), chValueDto.getCharacteristicValueId());
+            characteristicsChValues.add(characteristicId);
         }
         product.setCharacteristicsChValues(characteristicsChValues);
         try {
@@ -81,29 +79,65 @@ public class ProductService {
         }
         productRepo.deleteById(id);
     }
-    public ProductDto getProductById(int id){
+    public ProductProjectionById getProductById(int id){
         Optional<ProductProjectionById> productOptional = productRepo.getProductById(id);
         if (productOptional.isEmpty()) {
             return null;
         }
         ProductProjectionById productProjection = productOptional.get();
-        ProductDto productDto = ProductDto
-                .builder()
-                .id(productProjection.getId())
-                .name(productProjection.getName())
-                .price(productProjection.getPrice())
-                .brandId(productProjection.getBrandId())
-                .brandName(productProjection.getBrandName())
-                .categoryId(productProjection.getCategoryId())
-                .categoryName(productProjection.getCategoryName())
-                .build();
-        List<ImageDataProjection> productImages = imageRepo.getProductImages(id);
-        productDto.setImages(productImages);
-        return productDto;
+        return productProjection;
     }
 
     public Page<ProductProjection> showProducts(int page, int size) {
         Page<ProductProjection> products = productRepo.getProducts(PageRequest.of(page-1,size));
         return products;
+    }
+
+    public Product edit(ProductDto productDto, List<MultipartFile> imageList) {
+        Brand brand = new Brand();
+        Category category = new Category();
+        category.setId(productDto.getCategoryId());
+        brand.setId(productDto.getBrandId());
+        Product product = Product.builder()
+                .price(productDto.getPrice())
+                .amount(productDto.getAmount())
+                .brand(brand)
+                .category(category)
+                .build();
+        product.setId(productDto.getId());
+        product.setName(productDto.getName());
+        if (imageList.size() == 0) {
+            List<ImageData> imageDataList = new ArrayList<>();
+            for (ImageDataProjection productImage : imageRepo.getProductImages(productDto.getId())) {
+                ImageData imageData = new ImageData();
+                imageData.setId(productImage.getId());
+                imageDataList.add(imageData);
+            }
+            product.setMainImage(imageDataList.get(0));
+            product.setImage(imageDataList);
+        } else {
+            for (ImageDataProjection imageDataProjection : imageRepo.getProductImages(productDto.getId())) {
+                productRepo.removeImage(imageDataProjection.getId());
+                imageRepo.deleteById(imageDataProjection.getId());
+                File file = new File(UPLOAD_DIRECTORY + imageDataProjection.getPhotoName());
+                file.delete();
+            }
+            List<ImageData> save = imageService.saveAll(imageList);
+            product.setMainImage(save.get(0));
+            product.setImage(save);
+        }
+        productRepo.removeCharacteristicsByProductId(productDto.getId());
+        List<CharacteristicsChValues> characteristicsChValues = new ArrayList<>();
+        for (CharacteristicChValueDto chValueDto : productDto.getCharacteristicsChValues()) {
+            CharacteristicsChValues characteristicId = charactreristicChValueRepo.getCharacteristicId(chValueDto.getCharacteristicId(), chValueDto.getCharacteristicValueId());
+            characteristicsChValues.add(characteristicId);
+        }
+        product.setCharacteristicsChValues(characteristicsChValues);
+        try {
+            Product save = productRepo.save(product);
+            return save;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

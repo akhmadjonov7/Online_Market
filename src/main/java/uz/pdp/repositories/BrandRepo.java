@@ -25,7 +25,8 @@ public interface BrandRepo extends JpaRepository<Brand,Integer> {
             "b.name as name," +
             "b.owner as owner," +
             " b.about as about," +
-            "i.photo_name as imagePath," +
+            "i.id as imageId," +
+            "i.photo_name as imagePath" +
             " from brands b join images i on b.image_id = i.id where b.id = :id",
             nativeQuery = true)
     Optional<BrandProjection> getBrandById(int id);

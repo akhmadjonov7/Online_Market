@@ -8,13 +8,5 @@ public interface ProductProjection {
     Integer getId();
     String getName();
     Double getPrice();
-
-    @Value("#{@charactreristicChValueRepo.getAllCharacteristicsValuesByProductId(target.id)}")
-    List<CharacteristicsValuesProjection> getCharacters();
-    @Value("#{@imageRepo.getProductFirstImage(target.id)}")
-    ImageDataProjection getImages();
-    Integer getBrandId();
-    String getBrandName();
-    Integer getCategoryId();
-    String getCategoryName();
+    String getImageUrl();
 }
