@@ -60,4 +60,21 @@ public class UserCtrl {
         }
         return ResponseEntity.ok(new Api("", true, userById));
     }
+
+    @PutMapping
+    public HttpEntity<?> updateUser(@RequestBody UserDto userDto){
+        User user = User
+                .builder()
+                .full_name(userDto.getFull_name())
+                .phone_number(userDto.getPhone_number())
+                .password(userDto.getPassword())
+                .build();
+        user.setId(userDto.getId());
+        try {
+            userService.save(user);
+            return ResponseEntity.ok(new Api("", true, null));
+        } catch (Exception e) {
+            return ResponseEntity.ok(new Api("User not found", false, null));
+        }
+    }
 }
