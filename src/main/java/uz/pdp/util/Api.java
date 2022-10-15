@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Api {
     private String  message;
-        private Boolean status;
+    private Boolean status;
     private Object Date;
 }
