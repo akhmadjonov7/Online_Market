@@ -42,7 +42,12 @@ public class ProductCtrl {
 
     @GetMapping
     public HttpEntity<?> showProducts(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "size", defaultValue = "5") int size) {
-        Page<ProductProjection> productProjections = productService.showProducts(page, size);
+        Page<ProductProjection> productProjections = null;
+        try {
+            productProjections = productService.showProducts(page, size);
+        } catch (Exception e) {
+            return ResponseEntity.ok(new Api("Not Found", true, null));
+        }
         if (productProjections.isEmpty()) {
             return ResponseEntity.ok(new Api("Not Found", true, null));
         }
@@ -51,7 +56,7 @@ public class ProductCtrl {
 
     @GetMapping("/{id}")
     public HttpEntity<?> showProductById(@PathVariable Integer id) {
-        ProductDto productById = productService.getProductById(id);
+        ProductProjectionById productById = productService.getProductById(id);
         return ResponseEntity.ok(new Api("", true, productById));
     }
 
@@ -68,16 +73,27 @@ public class ProductCtrl {
                                      @RequestPart("product") String productJson) {
         ObjectMapper objectMapper = new ObjectMapper();
         ProductDto productDto = objectMapper.readValue(productJson, ProductDto.class);
-        Brand brand = new Brand();
-        brand.setId(productDto.getBrandId());
-        Category category = new Category();
-        category.setId(productDto.getCategoryId());
-        Product product = Product.builder()
-                .price(productDto.getPrice())
-                .amount(productDto.getAmount())
-                .brand(brand)
-                .category(category)
-                .build();
-        return null;
+//        System.out.println("imageList.size() = " + imageList.size());
+        Product edit = productService.edit(productDto, imageList);
+        if (edit==null) {
+            return ResponseEntity.ok(new Api("Product not found",false,null));
+        }
+
+        return ResponseEntity.ok(new Api("",true,null));
+    }
+    @SneakyThrows
+    @PutMapping("/add/{id}")
+    public HttpEntity<?> addToAmount(@RequestBody String amountJson, @PathVariable Integer id){
+        ObjectMapper objectMapper = new ObjectMapper();
+        ProductDto productDto = objectMapper.readValue(amountJson, ProductDto.class);
+        Integer amount = productDto.getAmount();
+        if (amount<0) {
+            return ResponseEntity.ok(new Api("amount must not be less than zero",false,null));
+        }
+        boolean b = productService.addAmount(id, amount);
+        if (b) {
+            return ResponseEntity.ok(new Api("",true,null));
+        }
+        return ResponseEntity.ok(new Api("Product Not Found",false,null));
     }
 }

@@ -30,8 +30,9 @@ public class Product {
     private Long price ;
 
     private Integer brand_id;
-
     private Integer category_id;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<ImageData> image;
 
 
 

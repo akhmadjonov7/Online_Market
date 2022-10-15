@@ -53,7 +53,7 @@ public class ChValueService {
 
     public boolean delete(int id) {
         try {
-            chValueRepo.deleteById(id);
+            charactreristicChValueRepo.removeByChValueId(id);
             return true;
         } catch (Exception e) {
             return false;

@@ -17,7 +17,7 @@ public class User extends AbsEntity {
     private String full_name;
 
     @Column(unique = true, nullable = false)
-    private String username;
+    private String phone_number;
 
     @Column(nullable = false)
     private Integer password;

@@ -8,6 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.dtos.CharacteristicDto;
 import uz.pdp.entities.Characteristic;
+import uz.pdp.projections.CharacteristicProjection;
 import uz.pdp.services.CharacteristicService;
 import uz.pdp.util.Api;
 
@@ -29,7 +30,7 @@ public class CharacteristicCtrl {
     }
     @GetMapping("/edit")
     public HttpEntity<?> getAllCharactersitics(@RequestParam(name = "size",defaultValue = "5") int size, @RequestParam(name = "page", defaultValue = "1") int page){
-        Page<Characteristic> allCharactersitic = characteristicService.getAllCharactersitic(size, page);
+        Page<CharacteristicProjection> allCharactersitic = characteristicService.getAllCharactersitic(size, page);
         if (allCharactersitic.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -37,7 +38,7 @@ public class CharacteristicCtrl {
     }
     @GetMapping
     public HttpEntity<?> getAllCharactersiticsForChoose(){
-        List<Characteristic> allCharactersitic = characteristicService.getAllCharactersiticForChoose();
+        List<CharacteristicProjection> allCharactersitic = characteristicService.getAllCharactersiticForChoose();
         if (allCharactersitic.size()==0) {
             return ResponseEntity.noContent().build();
         }
@@ -48,8 +49,12 @@ public class CharacteristicCtrl {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.ok(bindingResult.getAllErrors());
         }
-        characteristicService.save(characteristicDto);
-        return null;
+        try {
+            characteristicService.save(characteristicDto);
+        } catch (Exception e) {
+            return ResponseEntity.ok(new Api("Not Found",false,null));
+        }
+        return ResponseEntity.ok(new Api("",true,null));
     }
     @DeleteMapping("/{id}")
     public HttpEntity<?> deleteCharacteristic(@PathVariable Integer id){
