@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import uz.pdp.dtos.CharacteristicChValueDto;
 import uz.pdp.dtos.ProductDto;
@@ -84,8 +85,7 @@ public class ProductService {
         if (productOptional.isEmpty()) {
             return null;
         }
-        ProductProjectionById productProjection = productOptional.get();
-        return productProjection;
+        return productOptional.get();
     }
 
     public Page<ProductProjection> showProducts(int page, int size) {
@@ -93,6 +93,7 @@ public class ProductService {
         return products;
     }
 
+    @Transactional
     public Product edit(ProductDto productDto, List<MultipartFile> imageList) {
         Brand brand = new Brand();
         Category category = new Category();
@@ -106,18 +107,22 @@ public class ProductService {
                 .build();
         product.setId(productDto.getId());
         product.setName(productDto.getName());
-        if (imageList.size() == 0) {
+        if (imageList == null) {
             List<ImageData> imageDataList = new ArrayList<>();
             for (ImageDataProjection productImage : imageRepo.getProductImages(productDto.getId())) {
+                System.out.println("productImage.getContentType() = " + productImage.getContentType());
                 ImageData imageData = new ImageData();
                 imageData.setId(productImage.getId());
+                imageData.setPhotoName(productImage.getPhotoName());
+                imageData.setContentType(productImage.getContentType());
                 imageDataList.add(imageData);
             }
             product.setMainImage(imageDataList.get(0));
             product.setImage(imageDataList);
         } else {
-            for (ImageDataProjection imageDataProjection : imageRepo.getProductImages(productDto.getId())) {
-                productRepo.removeImage(imageDataProjection.getId());
+            List<ImageDataProjection> productImages = imageRepo.getProductImages(productDto.getId());
+            clearImages(productDto.getId());
+            for (ImageDataProjection imageDataProjection : productImages ) {
                 imageRepo.deleteById(imageDataProjection.getId());
                 File file = new File(UPLOAD_DIRECTORY + imageDataProjection.getPhotoName());
                 file.delete();
@@ -126,7 +131,6 @@ public class ProductService {
             product.setMainImage(save.get(0));
             product.setImage(save);
         }
-        productRepo.removeCharacteristicsByProductId(productDto.getId());
         List<CharacteristicsChValues> characteristicsChValues = new ArrayList<>();
         for (CharacteristicChValueDto chValueDto : productDto.getCharacteristicsChValues()) {
             CharacteristicsChValues characteristicId = charactreristicChValueRepo.getCharacteristicId(chValueDto.getCharacteristicId(), chValueDto.getCharacteristicValueId());
@@ -138,6 +142,54 @@ public class ProductService {
             return save;
         } catch (Exception e) {
             return null;
+        }
+    }
+    public void clearImages(Integer id){
+        ProductProjectionById productById = getProductById(id);
+        Brand brand = new Brand();
+        Category category = new Category();
+        category.setId(productById.getCategoryId());
+        brand.setId(productById.getBrandId());
+        Product product = Product.builder()
+                .price(productById.getPrice())
+                .amount(productById.getAmount())
+                .brand(brand)
+                .category(category)
+                .build();
+        product.setName(productById.getName());
+        product.setId(id);
+        productRepo.save(product);
+    }
+    public void clearCharacteristics(Integer id){
+        ProductProjectionById productById = getProductById(id);
+        Brand brand = new Brand();
+        Category category = new Category();
+        category.setId(productById.getCategoryId());
+        brand.setId(productById.getBrandId());
+        Product product = Product.builder()
+                .price(productById.getPrice())
+                .amount(productById.getAmount())
+                .brand(brand)
+                .category(category)
+                .build();
+        product.setName(productById.getName());
+        product.setId(id);
+        List<ImageData> imageDataList = new ArrayList<>();
+        for (ImageDataProjection productImage : imageRepo.getProductImages(productById.getId())) {
+            ImageData imageData = new ImageData();
+            imageData.setId(productImage.getId());
+            imageDataList.add(imageData);
+        }
+        product.setImage(imageDataList);
+        productRepo.save(product);
+    }
+
+    public boolean addAmount(Integer id, Integer amount) {
+        try {
+            productRepo.addAmount(amount,id);
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 }

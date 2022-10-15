@@ -3,7 +3,9 @@ package uz.pdp.repositories;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 import uz.pdp.entities.Product;
 import uz.pdp.projections.ImageDataProjection;
 import uz.pdp.projections.ProductProjection;
@@ -23,6 +25,7 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     @Query(value = "select p.id as id," +
             "p.name as name," +
             "p.price as price," +
+            "p.amount as amount," +
             "b.id as brandId," +
             "b.name as brandName," +
             "c.id as categoryId," +
@@ -38,4 +41,8 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     nativeQuery = true)
     void removeCharacteristicsByProductId(Integer id);
 
+    @Transactional
+    @Modifying
+    @Query(value = "update products set amount = amount + :amount where id = :id",nativeQuery = true)
+    int addAmount(Integer amount, Integer id);
 }

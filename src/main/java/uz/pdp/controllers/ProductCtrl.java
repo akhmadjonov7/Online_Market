@@ -73,11 +73,27 @@ public class ProductCtrl {
                                      @RequestPart("product") String productJson) {
         ObjectMapper objectMapper = new ObjectMapper();
         ProductDto productDto = objectMapper.readValue(productJson, ProductDto.class);
+//        System.out.println("imageList.size() = " + imageList.size());
         Product edit = productService.edit(productDto, imageList);
         if (edit==null) {
             return ResponseEntity.ok(new Api("Product not found",false,null));
         }
 
         return ResponseEntity.ok(new Api("",true,null));
+    }
+    @SneakyThrows
+    @PutMapping("/add/{id}")
+    public HttpEntity<?> addToAmount(@RequestBody String amountJson, @PathVariable Integer id){
+        ObjectMapper objectMapper = new ObjectMapper();
+        ProductDto productDto = objectMapper.readValue(amountJson, ProductDto.class);
+        Integer amount = productDto.getAmount();
+        if (amount<0) {
+            return ResponseEntity.ok(new Api("amount must not be less than zero",false,null));
+        }
+        boolean b = productService.addAmount(id, amount);
+        if (b) {
+            return ResponseEntity.ok(new Api("",true,null));
+        }
+        return ResponseEntity.ok(new Api("Product Not Found",false,null));
     }
 }
