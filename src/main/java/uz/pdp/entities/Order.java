@@ -29,11 +29,6 @@ public class Order extends AbsEntity {
     @ManyToOne
     private User user;
 
-    //
-
-
-
-
 
 
 }
