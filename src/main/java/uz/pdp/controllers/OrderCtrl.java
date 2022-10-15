@@ -7,6 +7,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import uz.pdp.entities.Product;
 import uz.pdp.util.Api;
 import uz.pdp.entities.Order;
 import uz.pdp.services.OrderService;
@@ -61,5 +62,37 @@ public class OrderCtrl {
         }
 
     }
+
+
+
+    @DeleteMapping("/amount/delete")
+    public HttpEntity<?> deleleAmout(@RequestParam Product product) {
+
+        try {
+            boolean deleteAmout = orderService.orderConfigurationDelete(product);
+            return ResponseEntity.ok(new Api("",true,null));
+
+        } catch (Exception e) {
+            return ResponseEntity.ok(new Api("",false,null));
+        }
+
+
+
+
+//
+//        public HttpEntity<?> addAmout(@Valid @RequestBody Product product, BindingResult d) {
+//            try {
+//                orderService.addOrder(product);
+//                return ResponseEntity.ok(new Api("", true, null));
+//
+//            } catch (Exception e) {
+//                return ResponseEntity.ok(new Api("", false, null));
+//            }
+//        }
+
+
+
+    }
+
 
 }

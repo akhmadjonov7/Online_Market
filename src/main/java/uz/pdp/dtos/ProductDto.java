@@ -18,7 +18,7 @@ public class ProductDto {
 
     private String name;
 
-    private Double price;
+    private Long price;
 
     private Integer amount;
 
