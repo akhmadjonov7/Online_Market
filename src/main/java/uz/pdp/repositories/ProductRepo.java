@@ -7,11 +7,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import uz.pdp.entities.Product;
-import uz.pdp.projections.ImageDataProjection;
 import uz.pdp.projections.ProductProjection;
 import uz.pdp.projections.ProductProjectionById;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepo extends JpaRepository<Product, Integer> {
@@ -34,15 +32,11 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             " join categories c on p.category_id = c.id where p.id = :id",nativeQuery = true)
     Optional<ProductProjectionById> getProductById(int id);
 
-    @Query(value = "delete from products_image where image_id = :id",nativeQuery = true)
-    void removeImage(Integer id);
-
-    @Query(value = "delete from products_characteristics_ch_values where products_id = :id",
-    nativeQuery = true)
-    void removeCharacteristicsByProductId(Integer id);
-
     @Transactional
     @Modifying
     @Query(value = "update products set amount = amount + :amount where id = :id",nativeQuery = true)
-    int addAmount(Integer amount, Integer id);
+    void addAmount(Integer amount, Integer id);
+
+    @Query(value = "select id from products where name = :name",nativeQuery = true)
+    Integer checkToUnique(String name);
 }

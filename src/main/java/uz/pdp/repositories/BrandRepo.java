@@ -42,4 +42,7 @@ public interface BrandRepo extends JpaRepository<Brand,Integer> {
     @Query(value = "select image_id from brands where id = :id",
             nativeQuery = true)
     Integer getBrandImageId(Integer id);
+
+    @Query(value = "select id from brands where name = :name",nativeQuery = true)
+    Integer  getBrandByName(String name);
 }

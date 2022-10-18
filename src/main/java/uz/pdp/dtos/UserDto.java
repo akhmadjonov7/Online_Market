@@ -1,5 +1,7 @@
 package uz.pdp.dtos;
 
+import uz.pdp.util.PermissionEnum;
+import uz.pdp.util.RoleEnum;
 import uz.pdp.validations.PasswordsMatch;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +9,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,15 +24,19 @@ public class UserDto {
     private Integer id;
 
     @NotBlank
-    private String full_name;
+    private String fullName;
 
     @NotBlank
-    private String phone_number;
+    private String phoneNumber;
 
-//    @NotBlank
-    private Integer password;
+    @NotBlank
+    private String  password;
 
-//    @NotBlank
-    private Integer confirmPassword;
+    @NotBlank
+    private String confirmPassword;
 
+    @NotNull
+    private List<Integer> rolesId;
+    @NotNull
+    private List<Integer> permissionsId;
 }

@@ -7,7 +7,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import uz.pdp.util.Api;
+import uz.pdp.util.ApiResponse;
 import uz.pdp.entities.Order;
 import uz.pdp.services.OrderService;
 
@@ -15,8 +15,9 @@ import javax.validation.Valid;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/orders")
-public class OrderCtrl {
+@RequestMapping("/api/orders")
+public class
+OrderCtrl {
 
     private final OrderService orderService;
 
@@ -24,8 +25,10 @@ public class OrderCtrl {
     public HttpEntity<?> showAllOrder(@RequestParam(name = "page", defaultValue = "1") int page,
                                       @RequestParam(name = "size", defaultValue = "5") int size
     ) {
+        if (page <= 0) page = 1;
+        if (size <= 0) size = 5;
         Page<Order> orderModelList = orderService.orderModelList(page, size);
-        return ResponseEntity.ok(new Api("", true, orderModelList));
+        return ResponseEntity.ok(new ApiResponse("", true, orderModelList));
     }
 
 
@@ -33,10 +36,10 @@ public class OrderCtrl {
     public HttpEntity<?> addNew(@Valid @RequestBody Order order, BindingResult bindingResult) {
         try {
             orderService.addOrder(order);
-            return ResponseEntity.ok(new Api("", true, null));
+            return ResponseEntity.ok(new ApiResponse("", true, null));
 
         } catch (Exception e) {
-            return ResponseEntity.ok(new Api("", false, null));
+            return ResponseEntity.ok(new ApiResponse("", false, null));
         }
     }
 
@@ -44,7 +47,7 @@ public class OrderCtrl {
     @DeleteMapping("/delete{id}")
     public HttpEntity<?> deleteById(@PathVariable int id) {
         boolean delete = orderService.deleteById(id);
-        return ResponseEntity.ok(new Api("", true, null));
+        return ResponseEntity.ok(new ApiResponse("", true, null));
     }
 
 
@@ -53,10 +56,10 @@ public class OrderCtrl {
     public HttpEntity<?> editById(@RequestBody Order order) {
         boolean update = orderService.addOrder(order);
         if (update) {
-            return ResponseEntity.ok(new Api("", false, null));
+            return ResponseEntity.ok(new ApiResponse("", false, null));
 
         } else {
-            return ResponseEntity.ok(new Api("", false, null));
+            return ResponseEntity.ok(new ApiResponse("", false, null));
 
         }
 
