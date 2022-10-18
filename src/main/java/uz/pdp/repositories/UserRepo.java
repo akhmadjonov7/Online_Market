@@ -13,17 +13,17 @@ import java.util.Optional;
 
 public interface UserRepo extends JpaRepository<User,Integer> {
 
-    @Query(value = "select u.full_name as full_name,\n" +
-            "       u.phone_number as phone_number\n" +
+    @Query(value = "select u.full_name as fullName,\n" +
+            "       u.phone_number as phoneNumber\n" +
             "       from users as u",
             countQuery = "select count(*) from products ",
             nativeQuery = true)
     Page<UserProjection> getUsers(Pageable pageable);
 
-    @Query(value = "select u.full_name as full_name,\n" +
-            "       u.phone_number as phone_number\n" +
-            "       from users as u\n" +
-            "       where u.id=:id;",
+    @Query(value = "select u.full_name as fullName, u.phone_number as phoneNumber, i.photo_name as photoName from users as u join images i on u.image_id = i.id where u.id=:id;",
             nativeQuery = true)
     Optional<UserProjection> getUserById(int id);
+
+    @Query(value = "select id from users  where phone_number = :phoneNumber",nativeQuery = true)
+    Integer checkToUnique(String phoneNumber);
 }

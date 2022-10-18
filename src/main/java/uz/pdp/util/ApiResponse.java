@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 
 @AllArgsConstructor @NoArgsConstructor @Data
 @Builder
-public class Api {
+public class ApiResponse {
     private String  message;
     private Boolean status;
-    private Object Date;
+    private Object Data;
 }

@@ -10,66 +10,69 @@ import uz.pdp.dtos.CharacteristicDto;
 import uz.pdp.entities.Characteristic;
 import uz.pdp.projections.CharacteristicProjection;
 import uz.pdp.services.CharacteristicService;
-import uz.pdp.util.Api;
+import uz.pdp.util.ApiResponse;
 
 import javax.validation.Valid;
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/characteristics")
+@RequestMapping("/api/characteristics")
 public class CharacteristicCtrl {
     private final CharacteristicService characteristicService;
+
     @PostMapping
-    public HttpEntity<?> addCharacteristic(@Valid @RequestBody CharacteristicDto characteristicDto, BindingResult bindingResult){
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity.ok(new Api("", false, bindingResult.getAllErrors()));
-        }
-        characteristicService.save(characteristicDto);
-        return ResponseEntity.ok("Added!!!");
+    public HttpEntity<?> addCharacteristic(@Valid @RequestBody Characteristic characteristic, BindingResult bindingResult) {
+        if (bindingResult.hasErrors())
+            return ResponseEntity.badRequest().body(new ApiResponse("Validation", false, bindingResult.getAllErrors()));
+        if (characteristicService.checkToUnique(characteristic.getName()))
+            return ResponseEntity.badRequest().body(new ApiResponse("Error", false, "This characteristic has already exists!!!"));
+        characteristicService.save(characteristic);
+        return ResponseEntity.ok(new ApiResponse("Added!!!",true,null));
     }
+
     @GetMapping("/edit")
-    public HttpEntity<?> getAllCharactersitics(@RequestParam(name = "size",defaultValue = "5") int size, @RequestParam(name = "page", defaultValue = "1") int page){
+    public HttpEntity<?> getAllCharactersitics(@RequestParam(name = "size", defaultValue = "5") int size, @RequestParam(name = "page", defaultValue = "1") int page) {
+        if (page <= 0) page = 1;
+        if (size <= 0) size = 5;
         Page<CharacteristicProjection> allCharactersitic = characteristicService.getAllCharactersitic(size, page);
-        if (allCharactersitic.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(new Api("",true, allCharactersitic));
+        return ResponseEntity.ok(new ApiResponse("", true, allCharactersitic));
     }
+
     @GetMapping
-    public HttpEntity<?> getAllCharactersiticsForChoose(){
+    public HttpEntity<?> getAllCharactersiticsForChoose() {
         List<CharacteristicProjection> allCharactersitic = characteristicService.getAllCharactersiticForChoose();
-        if (allCharactersitic.size()==0) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(new Api("",true, allCharactersitic));
+        return ResponseEntity.ok(new ApiResponse("", true, allCharactersitic));
     }
+
     @PutMapping
-    public HttpEntity<?> editCharacteristic(@Valid @RequestBody CharacteristicDto characteristicDto, BindingResult bindingResult){
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity.ok(bindingResult.getAllErrors());
-        }
+    public HttpEntity<?> editCharacteristic(@Valid @RequestBody Characteristic characteristic, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) return ResponseEntity.ok(bindingResult.getAllErrors());
+        if (characteristicService.checkToUnique(characteristic.getName()))
+            return ResponseEntity.badRequest().body(new ApiResponse("Error", false, "This characteristic has already exists!!!"));
         try {
-            characteristicService.save(characteristicDto);
+            characteristicService.save(characteristic);
         } catch (Exception e) {
-            return ResponseEntity.ok(new Api("Not Found",false,null));
+            return ResponseEntity.badRequest().body(new ApiResponse("Not Found", false, null));
         }
-        return ResponseEntity.ok(new Api("",true,null));
+        return ResponseEntity.ok(new ApiResponse("Edited", true, null));
     }
+
     @DeleteMapping("/{id}")
-    public HttpEntity<?> deleteCharacteristic(@PathVariable Integer id){
+    public HttpEntity<?> deleteCharacteristic(@PathVariable Integer id) {
         boolean delete = characteristicService.delete(id);
         if (delete) {
-            return ResponseEntity.ok("Deleted");
+            return ResponseEntity.ok(new ApiResponse("Deleted",true,null));
         }
-        return ResponseEntity.ok(new Api("You cannot delete this characteristic",false , null));
+        return ResponseEntity.badRequest().body(new ApiResponse("You cannot delete this characteristic", false, null));
     }
+
     @GetMapping("/{id}")
-    public HttpEntity<?> getCharacteristicById(@PathVariable Integer id){
+    public HttpEntity<?> getCharacteristicById(@PathVariable Integer id) {
         Characteristic characteristicById = characteristicService.getCharacteristicById(id);
-        if (characteristicById==null) {
-            return ResponseEntity.notFound().build();
+        if (characteristicById == null) {
+            return ResponseEntity.badRequest().body(new ApiResponse("Not Found",false,null));
         }
-        return ResponseEntity.ok(new Api("",true,characteristicById));
+        return ResponseEntity.ok(new ApiResponse("", true, characteristicById));
     }
 }

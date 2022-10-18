@@ -7,7 +7,9 @@ import java.util.List;
 public interface UserProjection {
     Integer getId();
 
-    String getFull_name();
+    String getFullName();
 
-    String getPhone_number();
+    String getPhoneNumber();
+
+    String getPhotoName();
 }

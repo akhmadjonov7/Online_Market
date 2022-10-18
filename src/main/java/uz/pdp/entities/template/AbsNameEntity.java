@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.sql.Timestamp;
 
 
@@ -16,7 +17,8 @@ public abstract class AbsNameEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Column(nullable = false,unique = true)
     private String name;
 
     @Column(updatable = false, nullable = false)

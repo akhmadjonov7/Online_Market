@@ -13,7 +13,7 @@ import java.io.IOException;
 import static uz.pdp.util.UploadDirectory.UPLOAD_DIRECTORY;
 
 @Controller
-@RequestMapping("/images")
+@RequestMapping("/api/images")
 @RequiredArgsConstructor
 public class ImageCtrl {
     private final ImageService imageService;

@@ -16,15 +16,12 @@ import java.util.Optional;
 @Service
 public class CharacteristicService {
     private final CharactreristicRepo characteristicRepo;
-    public Characteristic save(CharacteristicDto characteristicDto) {
-        Characteristic characteristic = new Characteristic();
-        Integer id = characteristicDto.getId();
-        if (id!=null) {
-            characteristic.setId(id);
+    public Characteristic save(Characteristic characteristic) {
+        try {
+            return characteristicRepo.save(characteristic);
+        } catch (Exception e) {
+            return null;
         }
-        characteristic.setName(characteristicDto.getName());
-        Characteristic save = characteristicRepo.save(characteristic);
-        return save;
     }
 
     public Page<CharacteristicProjection> getAllCharactersitic(int size, int page){
@@ -51,5 +48,9 @@ public class CharacteristicService {
 
     public List<CharacteristicProjection> getAllCharactersiticForChoose() {
         return characteristicRepo.getAllCharacteristicsForChoose();
+    }
+
+    public boolean checkToUnique(String name) {
+        return characteristicRepo.checkToUnique(name)!=null;
     }
 }

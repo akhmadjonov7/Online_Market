@@ -18,13 +18,8 @@ public class CategoryService {
         return categoryRepo.findAll(PageRequest.of(page-1, size));
     }
 
-    public boolean addCategory(Category category) {
-        try {
+    public void addCategory(Category category) {
             categoryRepo.save(category);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
     }
 
 
@@ -43,5 +38,9 @@ public class CategoryService {
             return null;
         }
         return byId.get();
+    }
+
+    public boolean checkToUnique(String name) {
+        return categoryRepo.checkToUnique(name) != null;
     }
 }

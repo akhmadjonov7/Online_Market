@@ -7,6 +7,7 @@ import lombok.*;
 import uz.pdp.entities.template.AbsEntity;
 
 import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,9 +23,10 @@ public class Order extends AbsEntity {
     private Date orderedAt;
 
 
-
     private  boolean isDelivered;
 
+    @ManyToMany
+    private List<Product> product;
 
     @ManyToOne
     private User user;

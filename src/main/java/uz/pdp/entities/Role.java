@@ -2,26 +2,20 @@ package uz.pdp.entities;
 
 import lombok.*;
 import uz.pdp.entities.template.AbsEntity;
-
+import uz.pdp.util.RoleEnum;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotBlank;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
-@Entity(name = "ch_values")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
+@Entity(name = "roles")
 @EqualsAndHashCode(callSuper = true)
-public class CharacteristicValue extends AbsEntity {
-
-    @NotBlank
-    @Column(unique = true)
-    private String value;
-
-
-
-
+public class Role extends AbsEntity {
+    @Enumerated(EnumType.STRING)
+    private RoleEnum name;
 }

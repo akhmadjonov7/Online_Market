@@ -1,9 +1,12 @@
 package uz.pdp.controllers;
 
+import org.springframework.web.multipart.MultipartFile;
 import uz.pdp.dtos.UserDto;
+import uz.pdp.entities.Role;
 import uz.pdp.entities.User;
 import uz.pdp.projections.UserProjection;
-import uz.pdp.util.Api;
+import uz.pdp.repositories.RoleRepo;
+import uz.pdp.util.ApiResponse;
 import uz.pdp.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,53 +14,90 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import uz.pdp.util.RoleEnum;
 
 import javax.validation.Valid;
+import java.util.HashSet;
+import java.util.Set;
+
+import static java.util.Arrays.stream;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserCtrl {
 
     private final UserService userService;
+    private final RoleRepo roleRepo;
 
-    @PostMapping("/add")
-    public HttpEntity<?> save(@RequestBody @Valid  UserDto userDto, BindingResult bindingResult) {
+    @PostMapping
+    public HttpEntity<?> save(@Valid @RequestPart UserDto userDto, BindingResult bindingResult, @RequestPart(required = false) MultipartFile image) {
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.ok(new Api("", false, bindingResult.getAllErrors()));
+            return ResponseEntity.ok(new ApiResponse("", false, bindingResult.getAllErrors()));
         }
         User user = User
                 .builder()
-                .full_name(userDto.getFull_name())
-                .phone_number(userDto.getPhone_number())
+                .fullName(userDto.getFullName())
+                .phoneNumber(userDto.getPhoneNumber())
                 .password(userDto.getPassword())
                 .build();
-        userService.save(user);
-        return ResponseEntity.ok(new Api("", true, null));
+        if (userService.checkToUnique(userDto.getPhoneNumber())) {
+            return ResponseEntity.badRequest().body(new ApiResponse("This phone number has already exists", false, null));
+        }
+        userService.save(user, image);
+        return ResponseEntity.ok(new ApiResponse("", true, null));
     }
 
     @GetMapping
-    public HttpEntity<?> getAllUsers(@RequestParam(name = "page",defaultValue = "1") int page,
-                                     @RequestParam(name = "size",defaultValue = "5") int size) {
-        Page<UserProjection> userList = userService.getAllUsers(page,size);
-        return ResponseEntity.ok(new Api("", true, userList));
+    public HttpEntity<?> getAllUsers(@RequestParam(name = "page", defaultValue = "1") int page,
+                                     @RequestParam(name = "size", defaultValue = "5") int size) {
+        if (page <= 0) page = 1;
+        if (size <= 0) size = 5;
+        Page<UserProjection> userList = userService.getAllUsers(page, size);
+        return ResponseEntity.ok(new ApiResponse("", true, userList));
     }
 
     @GetMapping("/delete/{id}")
     public HttpEntity<?> delete(@PathVariable Integer id) {
         boolean delete = userService.delete(id);
         if (delete) {
-            return ResponseEntity.ok(new Api("", true, null));
+            return ResponseEntity.ok(new ApiResponse("", true, null));
         }
-        return ResponseEntity.ok(new Api("Error", false, null));
+        return ResponseEntity.badRequest().body(new ApiResponse("Error", false, null));
     }
 
     @GetMapping("/{id}")
     public HttpEntity<?> getUserById(@PathVariable Integer id) {
         UserProjection userById = userService.getUserById(id);
         if (userById == null) {
-            return ResponseEntity.ok(new Api("Not Found", false, null));
+            return ResponseEntity.ok(new ApiResponse("Not Found", false, null));
         }
-        return ResponseEntity.ok(new Api("", true, userById));
+        return ResponseEntity.ok(new ApiResponse("", true, userById));
+    }
+
+    @PutMapping
+    public HttpEntity<?> updateUser(@Valid @RequestBody UserDto userDto, BindingResult bindingResult, @RequestPart MultipartFile image) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(new ApiResponse("Validation", false, bindingResult.getAllErrors()));
+        }
+        if (userService.checkToUnique(userDto.getPhoneNumber())) {
+            return ResponseEntity.badRequest().body(new ApiResponse("This phone number has already exists", false, null));
+        }
+        if (userDto.getId() == null) {
+            return ResponseEntity.badRequest().body(new ApiResponse("Something wrong!!!", false, null));
+        }
+        Role roleUser = roleRepo.findByName(RoleEnum.ROLE_USER.name());
+        User user = User.builder()
+                .fullName(userDto.getFullName())
+                .phoneNumber(userDto.getPhoneNumber())
+                .roles((Set<Role>) roleUser)
+                .build();
+        user.setId(userDto.getId());
+        try {
+            userService.edit(user, image);
+            return ResponseEntity.ok(new ApiResponse("", true, null));
+        } catch (Exception e) {
+            return ResponseEntity.ok(new ApiResponse("User not found", false, null));
+        }
     }
 }

@@ -18,4 +18,6 @@ public interface CharactreristicRepo extends JpaRepository<Characteristic,Intege
     @Query(value = "select id,name from characteristics",nativeQuery = true)
     List<CharacteristicProjection> getAllCharacteristicsForChoose();
 
+    @Query(value = "select id from characteristics where name = :name",nativeQuery = true)
+    Integer checkToUnique(String name);
 }
