@@ -9,7 +9,7 @@ public interface UserProjection {
 
     String getFullName();
 
-    String getPhoneNumber();
+    String getUsername();
 
     String getPhotoName();
 }

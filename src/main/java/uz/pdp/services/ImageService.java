@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uz.pdp.entities.ImageData;
-import uz.pdp.entities.Product;
 import uz.pdp.repositories.ImageRepo;
 import uz.pdp.repositories.ProductRepo;
 
@@ -14,7 +13,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static uz.pdp.util.UploadDirectory.UPLOAD_DIRECTORY;
+import static uz.pdp.util.Util.UPLOAD_DIRECTORY;
 
 @Service
 @RequiredArgsConstructor

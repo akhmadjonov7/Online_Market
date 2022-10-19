@@ -5,8 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import uz.pdp.entities.User;
 import uz.pdp.util.ApiResponse;
 import uz.pdp.entities.Order;
 import uz.pdp.services.OrderService;
@@ -28,6 +30,17 @@ OrderCtrl {
         if (page <= 0) page = 1;
         if (size <= 0) size = 5;
         Page<Order> orderModelList = orderService.orderModelList(page, size);
+        return ResponseEntity.ok(new ApiResponse("", true, orderModelList));
+    }
+
+    @GetMapping("/me")
+    public HttpEntity<?> getAllOrderOfCurrentUser(@RequestParam(name = "page", defaultValue = "1") int page,
+                                      @RequestParam(name = "size", defaultValue = "5") int size,
+                                                  @AuthenticationPrincipal User user
+    ) {
+        if (page <= 0) page = 1;
+        if (size <= 0) size = 5;
+        Page<Order> orderModelList = orderService.getOrdersOfCurrentUser(page, size, user);
         return ResponseEntity.ok(new ApiResponse("", true, orderModelList));
     }
 

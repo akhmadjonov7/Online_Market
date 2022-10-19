@@ -1,5 +1,6 @@
 package uz.pdp.controllers;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 import uz.pdp.dtos.UserDto;
 import uz.pdp.entities.Role;
@@ -17,9 +18,12 @@ import org.springframework.web.bind.annotation.*;
 import uz.pdp.util.RoleEnum;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 
 @RequiredArgsConstructor
@@ -30,21 +34,16 @@ public class UserCtrl {
     private final UserService userService;
     private final RoleRepo roleRepo;
 
-    @PostMapping
+    private final PasswordEncoder passwordEncoder;
+    @PostMapping("/register")
     public HttpEntity<?> save(@Valid @RequestPart UserDto userDto, BindingResult bindingResult, @RequestPart(required = false) MultipartFile image) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.ok(new ApiResponse("", false, bindingResult.getAllErrors()));
         }
-        User user = User
-                .builder()
-                .fullName(userDto.getFullName())
-                .phoneNumber(userDto.getPhoneNumber())
-                .password(userDto.getPassword())
-                .build();
-        if (userService.checkToUnique(userDto.getPhoneNumber())) {
+        if (userService.checkToUnique(userDto.getUsername())) {
             return ResponseEntity.badRequest().body(new ApiResponse("This phone number has already exists", false, null));
         }
-        userService.save(user, image);
+        userService.save(userDto, image);
         return ResponseEntity.ok(new ApiResponse("", true, null));
     }
 
@@ -80,21 +79,15 @@ public class UserCtrl {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(new ApiResponse("Validation", false, bindingResult.getAllErrors()));
         }
-        if (userService.checkToUnique(userDto.getPhoneNumber())) {
+        if (userService.checkToUnique(userDto.getUsername())) {
             return ResponseEntity.badRequest().body(new ApiResponse("This phone number has already exists", false, null));
         }
         if (userDto.getId() == null) {
             return ResponseEntity.badRequest().body(new ApiResponse("Something wrong!!!", false, null));
         }
-        Role roleUser = roleRepo.findByName(RoleEnum.ROLE_USER.name());
-        User user = User.builder()
-                .fullName(userDto.getFullName())
-                .phoneNumber(userDto.getPhoneNumber())
-                .roles((Set<Role>) roleUser)
-                .build();
-        user.setId(userDto.getId());
+
         try {
-            userService.edit(user, image);
+            userService.edit(userDto, image);
             return ResponseEntity.ok(new ApiResponse("", true, null));
         } catch (Exception e) {
             return ResponseEntity.ok(new ApiResponse("User not found", false, null));
