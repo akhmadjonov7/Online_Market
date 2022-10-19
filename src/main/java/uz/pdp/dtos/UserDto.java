@@ -27,7 +27,7 @@ public class UserDto {
     private String fullName;
 
     @NotBlank
-    private String phoneNumber;
+    private String username;
 
     @NotBlank
     private String  password;

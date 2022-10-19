@@ -22,7 +22,6 @@ public class Order extends AbsEntity {
     @Column(nullable = false)
     private Date orderedAt;
 
-
     private  boolean isDelivered;
 
     @ManyToMany

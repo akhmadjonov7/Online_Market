@@ -23,7 +23,7 @@ public class User extends AbsEntity implements UserDetails {
     private String fullName;
 
     @Column(unique = true, nullable = false)
-    private String phoneNumber;
+    private String username;
 
     @Column(nullable = false)
     private String  password;
@@ -60,10 +60,6 @@ public class User extends AbsEntity implements UserDetails {
         return authorityList;
     }
 
-    @Override
-    public String getUsername() {
-        return this.phoneNumber;
-    }
 
     @Override
     public boolean isAccountNonExpired() {

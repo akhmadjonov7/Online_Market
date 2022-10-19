@@ -24,14 +24,13 @@ public class DataLoader implements CommandLineRunner {
 
     private final UserRepo userRepo;
 
-//    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Override
     public void run(String... args) throws Exception {
 
         if (initMode.equals("always")) {
-            // ROLE LAR DB GA SAQLANADI...
             Role save = roleRepo.save(Role.builder()
                     .name(RoleEnum.ROLE_SUPER_ADMIN)
                     .build());
@@ -45,13 +44,12 @@ public class DataLoader implements CommandLineRunner {
             Set<Role> roles = new HashSet<>();
             roles.add(save);
             userRepo.save(User.builder()
-                            .phoneNumber("+998909574581")
-                            .password("1120")
+                            .username("akhmadjonov")
+                            .password(passwordEncoder.encode("1120"))
                             .fullName("Oybek Akhmadjonov")
                             .isEnabled(true)
                             .roles(roles)
                     .build());
-//            ==============================
 
         }
     }

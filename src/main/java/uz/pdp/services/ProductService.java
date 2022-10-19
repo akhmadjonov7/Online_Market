@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static uz.pdp.util.UploadDirectory.UPLOAD_DIRECTORY;
+import static uz.pdp.util.Util.UPLOAD_DIRECTORY;
 
 @Service
 @RequiredArgsConstructor

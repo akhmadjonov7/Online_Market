@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import static uz.pdp.util.UploadDirectory.UPLOAD_DIRECTORY;
+import static uz.pdp.util.Util.UPLOAD_DIRECTORY;
 
 @Controller
 @RequestMapping("/api/images")

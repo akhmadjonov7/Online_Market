@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import uz.pdp.entities.Brand;
 import uz.pdp.entities.ImageData;
@@ -20,7 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import static uz.pdp.util.UploadDirectory.UPLOAD_DIRECTORY;
+import static uz.pdp.util.Util.UPLOAD_DIRECTORY;
 
 @RequiredArgsConstructor
 @Service
