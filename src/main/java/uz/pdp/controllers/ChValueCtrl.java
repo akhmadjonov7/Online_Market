@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.dtos.ChValueDto;
@@ -22,6 +23,7 @@ public class ChValueCtrl {
     private final ChValueService chValueService;
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> addChValues(@Valid @RequestBody List<ChValueDto> chValueDtos, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
@@ -41,6 +43,7 @@ public class ChValueCtrl {
     }
 
     @GetMapping("/edit")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> getAllValuesForEdit(@RequestParam(name = "size", defaultValue = "5") int size, @RequestParam(name = "page", defaultValue = "1") int page) {
         if (page<=0) page = 1;
         if (size<=0) size = 5;
@@ -58,6 +61,8 @@ public class ChValueCtrl {
     }
 
     @PutMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
+
     public HttpEntity<?> editChValue(@Valid @RequestBody ChValueDto chValueDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
@@ -70,6 +75,8 @@ public class ChValueCtrl {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('CAN_DELETE_CH_VALUE' or 'ROLE_SUPER_ADMIN')")
+
     public HttpEntity<?> deleteChValue(@PathVariable Integer id){
         boolean delete = chValueService.delete(id);
         if (delete) {

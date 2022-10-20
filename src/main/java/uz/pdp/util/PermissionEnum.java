@@ -1,5 +1,11 @@
 package uz.pdp.util;
 
 public enum PermissionEnum {
-    CAN_DELETE
+    CAN_DELETE_CATEGORY,
+    CAN_DELETE_BRAND,
+    CAN_DELETE_USER,
+    CAN_DELETE_ORDER,
+    CAN_DELETE_PRODUCT,
+    CAN_DELETE_CH_VALUE,
+    CAN_DELETE_CHARACTERISTIC
 }

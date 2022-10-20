@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import uz.pdp.entities.Brand;
 import uz.pdp.projections.BrandProjection;
+import uz.pdp.projections.BrandProjectionById;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +30,7 @@ public interface BrandRepo extends JpaRepository<Brand,Integer> {
             "i.photo_name as imagePath" +
             " from brands b join images i on b.image_id = i.id where b.id = :id",
             nativeQuery = true)
-    Optional<BrandProjection> getBrandById(int id);
+    Optional<BrandProjectionById> getBrandById(int id);
 
     @Query(value = "select b.id as id," +
             "b.name as name," +

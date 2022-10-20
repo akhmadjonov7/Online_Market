@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.entities.Category;
@@ -28,6 +29,8 @@ public class CategoryCtrl {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
+
     public HttpEntity<?> addCategory(@Valid @RequestBody Category category, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) return ResponseEntity.badRequest().body(new ApiResponse("Validation error",false,bindingResult.getAllErrors()));
         if (categoryService.checkToUnique(category.getName())) return ResponseEntity.badRequest().body(new ApiResponse("Error", false, "This category has already exists!!!"));
@@ -36,6 +39,7 @@ public class CategoryCtrl {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('CAN_DELETE_CATEGORY' or 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> deleteCategory(@PathVariable int id) {
         boolean delete = categoryService.deleteCategory(id);
         if (delete) {
@@ -45,7 +49,8 @@ public class CategoryCtrl {
     }
 
 
-    @PutMapping()
+    @PutMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> editCategory(@Valid @RequestBody Category category,BindingResult bindingResult) {
         if (bindingResult.hasErrors()) return ResponseEntity.badRequest().body(new ApiResponse("Validation error",false,bindingResult.getAllErrors()));
         if (categoryService.checkToUnique(category.getName())) return ResponseEntity.badRequest().body(new ApiResponse("Error", false, "This category has already exists!!!"));

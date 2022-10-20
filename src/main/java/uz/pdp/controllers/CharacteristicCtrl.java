@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.dtos.CharacteristicDto;
@@ -22,6 +23,7 @@ public class CharacteristicCtrl {
     private final CharacteristicService characteristicService;
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> addCharacteristic(@Valid @RequestBody Characteristic characteristic, BindingResult bindingResult) {
         if (bindingResult.hasErrors())
             return ResponseEntity.badRequest().body(new ApiResponse("Validation", false, bindingResult.getAllErrors()));
@@ -32,6 +34,7 @@ public class CharacteristicCtrl {
     }
 
     @GetMapping("/edit")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> getAllCharactersitics(@RequestParam(name = "size", defaultValue = "5") int size, @RequestParam(name = "page", defaultValue = "1") int page) {
         if (page <= 0) page = 1;
         if (size <= 0) size = 5;
@@ -46,6 +49,7 @@ public class CharacteristicCtrl {
     }
 
     @PutMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> editCharacteristic(@Valid @RequestBody Characteristic characteristic, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) return ResponseEntity.ok(bindingResult.getAllErrors());
         if (characteristicService.checkToUnique(characteristic.getName()))
@@ -59,6 +63,8 @@ public class CharacteristicCtrl {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('CAN_DELETE_CHARACTERISTIC' or 'ROLE_SUPER_ADMIN')")
+
     public HttpEntity<?> deleteCharacteristic(@PathVariable Integer id) {
         boolean delete = characteristicService.delete(id);
         if (delete) {

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify</title>
+</head>
+<body>
+<form th:action="@{'http://localhost/api/users/verify/' + ${id}}" method="post">
+    <h1 th:text="${message}"></h1>
+    <button type="submit" th:text="Verify"></button>
+</form>
+</body>
+</html>

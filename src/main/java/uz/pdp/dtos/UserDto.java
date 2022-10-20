@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -20,13 +21,14 @@ import java.util.Set;
 @PasswordsMatch(message = "Passwords don't match")
 public class UserDto {
 
-    @NotBlank
+//    @NotBlank
     private Integer id;
 
     @NotBlank
     private String fullName;
 
     @NotBlank
+    @Email
     private String username;
 
     @NotBlank
@@ -35,8 +37,8 @@ public class UserDto {
     @NotBlank
     private String confirmPassword;
 
-    @NotNull
+//    @NotNull
     private List<Integer> rolesId;
-    @NotNull
+//    @NotNull
     private List<Integer> permissionsId;
 }
