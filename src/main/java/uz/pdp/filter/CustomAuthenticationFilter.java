@@ -44,7 +44,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         List<String> roles = currentUser.getRoles().stream().map(role -> role.getName().toString()).toList();
         response.setContentType(APPLICATION_JSON_VALUE);
         String accessToken = JWT.create()
-                .withSubject(currentUser.getFullName())
+                .withSubject(currentUser.getUsername())
                 .withClaim("userId",currentUser.getId())
                 .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * 60 * 10)))
                 .withClaim("roles", roles)

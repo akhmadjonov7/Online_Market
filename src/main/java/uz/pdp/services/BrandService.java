@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import uz.pdp.entities.Brand;
 import uz.pdp.entities.ImageData;
 import uz.pdp.projections.BrandProjection;
+import uz.pdp.projections.BrandProjectionById;
 import uz.pdp.repositories.BrandRepo;
 import uz.pdp.repositories.ImageRepo;
 
@@ -66,15 +67,15 @@ public class BrandService {
         }
     }
 
-    public BrandProjection getBrandById(int id) {
-        Optional<BrandProjection> brandById = brandRepo.getBrandById(id);
+    public BrandProjectionById getBrandById(int id) {
+        Optional<BrandProjectionById> brandById = brandRepo.getBrandById(id);
         if (brandById.isEmpty())    return null;
         return brandById.get();
     }
 
     @SneakyThrows
     public void edit(Brand brand, MultipartFile image) {
-        BrandProjection brandById = getBrandById(brand.getId());
+        BrandProjectionById brandById = getBrandById(brand.getId());
         imageRepo.deleteById(brandById.getImageId());
         File file = new File(UPLOAD_DIRECTORY + brandById.getImagePath());
         file.delete();

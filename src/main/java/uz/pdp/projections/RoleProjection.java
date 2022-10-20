@@ -1,7 +1,6 @@
 package uz.pdp.projections;
 
-public interface BrandProjection {
+public interface RoleProjection {
     Integer getId();
     String getName();
-    String getImagePath();
 }

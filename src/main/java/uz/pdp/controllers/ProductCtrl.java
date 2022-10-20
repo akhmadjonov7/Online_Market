@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,7 @@ public class ProductCtrl {
     @SneakyThrows
     @Transactional
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> addProduct(@Valid @RequestPart("product") ProductDto productDto, BindingResult bindingResult, @RequestPart(name = "images", required = false) List<MultipartFile> imageList) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(new ApiResponse("Validation",false,bindingResult.getAllErrors()));
@@ -66,6 +68,7 @@ public class ProductCtrl {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('CAN_DELETE_PRODUCT' or 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> deleteProduct(@PathVariable Integer id) {
         productService.delete(id);
         return ResponseEntity.ok(new ApiResponse("", true, null));
@@ -74,6 +77,7 @@ public class ProductCtrl {
     @SneakyThrows
     @Transactional
     @PutMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> editProduct(@Valid @RequestPart("product") ProductDto productDto,BindingResult bindingResult,@RequestPart(name = "images", required = false) List<MultipartFile> imageList) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(new ApiResponse("Validation",false,bindingResult.getAllErrors()));
@@ -93,6 +97,7 @@ public class ProductCtrl {
     }
     @SneakyThrows
     @PutMapping("/add/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> addToAmount(@RequestBody String amountJson, @PathVariable Integer id){
         ObjectMapper objectMapper = new ObjectMapper();
         ProductDto productDto = objectMapper.readValue(amountJson, ProductDto.class);
