@@ -7,10 +7,11 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import uz.pdp.dtos.UserDto;
 import uz.pdp.entities.ImageData;
+import uz.pdp.entities.Permission;
 import uz.pdp.entities.Role;
 import uz.pdp.entities.User;
+import uz.pdp.repositories.PermissionRepo;
 import uz.pdp.repositories.RoleRepo;
 import uz.pdp.repositories.UserRepo;
 import uz.pdp.services.ImageService;
@@ -20,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Component
@@ -34,10 +34,10 @@ public class DataLoader implements CommandLineRunner {
 
     private final UserRepo userRepo;
 
-    private final UserService userService;
 
     private final PasswordEncoder passwordEncoder;
     private final ImageService imageService;
+    private final PermissionRepo permissionRepo;
 
 
     @Override
@@ -47,26 +47,43 @@ public class DataLoader implements CommandLineRunner {
             Role roleSuperAdmin = roleRepo.save(Role.builder()
                     .name(RoleEnum.ROLE_SUPER_ADMIN)
                     .build());
-            Role roleAdmin = roleRepo.save(Role.builder()
+            roleRepo.save(Role.builder()
                     .name(RoleEnum.ROLE_ADMIN)
                     .build());
-            Role roleUser = roleRepo.save(Role.builder()
+            roleRepo.save(Role.builder()
                     .name(RoleEnum.ROLE_USER)
+                    .build());
+
+            permissionRepo.save(Permission.builder()
+                    .name(PermissionEnum.CAN_DELETE_CATEGORY)
+                    .build());
+            permissionRepo.save(Permission.builder()
+                    .name(PermissionEnum.CAN_DELETE_BRAND)
+                    .build());
+            permissionRepo.save(Permission.builder()
+                    .name(PermissionEnum.CAN_DELETE_CH_VALUE)
+                    .build());
+            permissionRepo.save(Permission.builder()
+                    .name(PermissionEnum.CAN_CHANGE_ORDER_STATUS)
+                    .build());
+            permissionRepo.save(Permission.builder()
+                    .name(PermissionEnum.CAN_DELETE_USER)
+                    .build());
+            permissionRepo.save(Permission.builder()
+                    .name(PermissionEnum.CAN_DELETE_CHARACTERISTIC)
+                    .build());
+            permissionRepo.save(Permission.builder()
+                    .name(PermissionEnum.CAN_DELETE_PRODUCT)
                     .build());
 
             Set<Role> roles = new HashSet<>();
             roles.add(roleSuperAdmin);
-            roles.add(roleAdmin);
-            roles.add(roleUser);
-//            UserDto userDto = UserDto.builder().fullName("Oybek Akhmadjonov").username("akhmadjonov").password("1120").confirmPassword("1120")
-//                    .rolesId(List.of(1, 2, 3)).build();
 
             Path path = Paths.get("src/main/resources/image/user.png");
             MultipartFile defaultImage = new MockMultipartFile("user.png", "user.png",
                     "image/png", Files.readAllBytes(path));
-            ImageData save = imageService.save(defaultImage);
-            User user = new User("Oybek Akhmadjonov","akhmadjonov",passwordEncoder.encode("1120"),true,save,roles,null);
-//            userService.save(userDto,null);
+            ImageData save = imageService.save(defaultImage, "SUPER_ADMIN");
+            User user = new User("Oybek Akhmadjonov", "oybekakhmadjonov1@gmail.com", passwordEncoder.encode("1120"), true, save, roles, null);
             userRepo.save(user);
         }
     }

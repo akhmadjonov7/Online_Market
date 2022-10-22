@@ -29,13 +29,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
-//"api/order/foruser/**"
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeHttpRequests()
-                .antMatchers(HttpMethod.GET,"/api/products/**","/api/categories/**","/api/brands/**","/api/images/**","/api/chvalues/**","/api/charactersitics/**","/api/users/refresh").permitAll()
-                .antMatchers(HttpMethod.POST,"/api/users/register","/api/users/verify/**").permitAll()
+                .antMatchers(HttpMethod.GET,"/api/products/**","/api/categories/**","/api/brands/**","/api/images/**","/api/chvalues/**","/api/charactersitics/**","/api/users/refresh","/api/users/verify/**").permitAll()
+                .antMatchers(HttpMethod.POST,"/api/users/register").permitAll()
                 .anyRequest().authenticated();
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean());
         customAuthenticationFilter.setFilterProcessesUrl("/api/login");

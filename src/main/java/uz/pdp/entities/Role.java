@@ -4,7 +4,6 @@ import lombok.*;
 import uz.pdp.entities.template.AbsEntity;
 import uz.pdp.util.RoleEnum;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;

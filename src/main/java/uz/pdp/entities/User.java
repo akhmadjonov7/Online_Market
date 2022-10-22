@@ -22,13 +22,17 @@ public class User extends AbsEntity implements UserDetails {
     @Column(nullable = false)
     private String fullName;
 
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
     @Column(unique = true, nullable = false)
-    private String username;
+    private String email;
 
     @Column(nullable = false)
     private String  password;
 
-    private boolean isEnabled = true;
+    private boolean isEnabled = false;
 
     @OneToOne(cascade = CascadeType.REMOVE)
     private ImageData image;
@@ -58,6 +62,11 @@ public class User extends AbsEntity implements UserDetails {
             authorityList.add(new SimpleGrantedAuthority(permission.getName().toString()));
         }
         return authorityList;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
     }
 
 

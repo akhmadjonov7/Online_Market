@@ -2,18 +2,17 @@ package uz.pdp.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import uz.pdp.entities.Characteristic;
 import uz.pdp.entities.CharacteristicsChValues;
 import uz.pdp.projections.CharacteristicsValuesProjection;
 
 import java.util.List;
 
-public interface CharactreristicChValueRepo extends JpaRepository<CharacteristicsChValues,Integer> {
-        @Query(nativeQuery = true,value = "select value from characteristics_ch_values join ch_values cv on cv.id = characteristics_ch_values.characteristic_value_id where characteristic_id = :characteristicId")
-        List<String> getallChValuesByCharacteristicId(int characteristicId);
+public interface CharactreristicChValueRepo extends JpaRepository<CharacteristicsChValues, Integer> {
+    @Query(nativeQuery = true, value = "select value from characteristics_ch_values join ch_values cv on cv.id = characteristics_ch_values.characteristic_value_id where characteristic_id = :characteristicId")
+    List<String> getallChValuesByCharacteristicId(int characteristicId);
 
-        @Query(nativeQuery = true, value = "select * from characteristics_ch_values where characteristic_id = :id and  characteristic_value_id = :id1")
-     CharacteristicsChValues getCharacteristicId(int id, int id1);
+    @Query(nativeQuery = true, value = "select * from characteristics_ch_values where characteristic_id = :id and  characteristic_value_id = :id1")
+    CharacteristicsChValues getCharacteristicId(int id, int id1);
 
     @Query(nativeQuery = true, value = "select c.name, cv.value \n" +
             "            from characteristics_ch_values \n" +
@@ -25,6 +24,6 @@ public interface CharactreristicChValueRepo extends JpaRepository<Characteristic
     List<CharacteristicsValuesProjection> getAllCharacteristicsValuesByProductId(Integer productId);
 
     @Query(nativeQuery = true,
-    value = "delete from characteristics_ch_values where characteristic_value_id = :id")
+            value = "delete from characteristics_ch_values where characteristic_value_id = :id")
     void removeByChValueId(int id);
 }

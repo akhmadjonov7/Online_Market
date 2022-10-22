@@ -1,7 +1,5 @@
 package uz.pdp.dtos;
 
-import uz.pdp.util.PermissionEnum;
-import uz.pdp.util.RoleEnum;
 import uz.pdp.validations.PasswordsMatch;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,9 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,7 +17,6 @@ import java.util.Set;
 @PasswordsMatch(message = "Passwords don't match")
 public class UserDto {
 
-//    @NotBlank
     private Integer id;
 
     @NotBlank
@@ -29,7 +24,7 @@ public class UserDto {
 
     @NotBlank
     @Email
-    private String username;
+    private String email;
 
     @NotBlank
     private String  password;
@@ -37,8 +32,7 @@ public class UserDto {
     @NotBlank
     private String confirmPassword;
 
-//    @NotNull
     private List<Integer> rolesId;
-//    @NotNull
+
     private List<Integer> permissionsId;
 }

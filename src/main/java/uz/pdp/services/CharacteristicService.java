@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import uz.pdp.dtos.CharacteristicDto;
 import uz.pdp.entities.Characteristic;
 import uz.pdp.projections.CharacteristicProjection;
 import uz.pdp.repositories.CharactreristicRepo;

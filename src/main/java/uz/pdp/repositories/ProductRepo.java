@@ -29,14 +29,11 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             "c.id as categoryId," +
             "c.name as categoryName" +
             " from products p join brands b on p.brand_id = b.id" +
-            " join categories c on p.category_id = c.id where p.id = :id",nativeQuery = true)
+            " join categories c on p.category_id = c.id where p.id = :id", nativeQuery = true)
     Optional<ProductProjectionById> getProductById(int id);
 
-    @Transactional
-    @Modifying
-    @Query(value = "update products set amount = amount + :amount where id = :id",nativeQuery = true)
-    void addAmount(Integer amount, Integer id);
 
-    @Query(value = "select id from products where name = :name",nativeQuery = true)
+    @Query(value = "select id from products where name = :name", nativeQuery = true)
     Integer checkToUnique(String name);
+
 }

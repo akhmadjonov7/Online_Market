@@ -8,7 +8,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import uz.pdp.entities.User;
-import uz.pdp.util.Util;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -32,9 +31,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String username = request.getParameter("username");
+        String email = request.getParameter("email");
         String password = request.getParameter("password");
-        return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username,password));
+        return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email,password));
     }
 
     @Override
@@ -44,9 +43,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         List<String> roles = currentUser.getRoles().stream().map(role -> role.getName().toString()).toList();
         response.setContentType(APPLICATION_JSON_VALUE);
         String accessToken = JWT.create()
-                .withSubject(currentUser.getUsername())
+                .withSubject(currentUser.getEmail())
                 .withClaim("userId",currentUser.getId())
-                .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * 60 * 10)))
+                .withExpiresAt(new Date(System.currentTimeMillis() + (86_400_000)))
                 .withClaim("roles", roles)
                 .sign(algorithm);
         String refreshToken = JWT.create()
@@ -64,9 +63,11 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         response.setContentType(APPLICATION_JSON_VALUE);
-        response.setStatus(400);
+        System.out.println(failed.getMessage());
+        response.setStatus(401);
         Map<String ,String > message = new HashMap<>();
-        message.put("errorMessage","Incorrect password or username");
+        if (failed.getMessage().equals("Verify email")) message.put("error_message","Verify you email");
+        else message.put("errorMessage","Incorrect password or username");
         new ObjectMapper().writeValue(response.getOutputStream(),message);
     }
 }

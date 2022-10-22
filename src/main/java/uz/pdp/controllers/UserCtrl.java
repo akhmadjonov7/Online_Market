@@ -6,13 +6,11 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 import uz.pdp.dtos.UserDto;
-import uz.pdp.entities.Role;
+import uz.pdp.dtos.UserRoleDto;
 import uz.pdp.entities.User;
 import uz.pdp.projections.UserProjection;
 import uz.pdp.repositories.RoleRepo;
@@ -42,10 +40,8 @@ import static uz.pdp.util.Util.algorithm;
 public class UserCtrl {
 
     private final UserService userService;
-    private final RoleRepo roleRepo;
     private final UserRepo userRepo;
 
-    private final PasswordEncoder passwordEncoder;
 
     @SneakyThrows
     @PostMapping("/register")
@@ -53,7 +49,7 @@ public class UserCtrl {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.ok(new ApiResponse("", false, bindingResult.getAllErrors()));
         }
-        if (userService.checkToUnique(userDto.getUsername())) {
+        if (userService.checkToUnique(userDto.getEmail())) {
             return ResponseEntity.badRequest().body(new ApiResponse("This email has already exists", false, null));
         }
         userService.save(userDto, image);
@@ -66,17 +62,15 @@ public class UserCtrl {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         System.out.println(authorizationHeader);
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            System.out.println("keldi");
             try {
                 String refreshToken = authorizationHeader.substring(7);
                 JWTVerifier verifier = JWT.require(algorithm).build();
                 DecodedJWT decodedJWT = verifier.verify(refreshToken);
-                String username = decodedJWT.getSubject();
-                Optional<User> user1 = userRepo.findByUsername(username);
-                User user = user1.get();
+                String email = decodedJWT.getSubject();
+                User user = userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
                 String accessToken = JWT.create()
-                        .withSubject(user.getUsername())
-                        .withClaim("userId",user.getId())
+                        .withSubject(user.getEmail())
+                        .withClaim("userId", user.getId())
                         .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * 60 * 10)))
                         .withClaim("roles", user.getRoles().stream().map(role -> role.getName().name()).collect(Collectors.toList()))
                         .sign(algorithm);
@@ -117,12 +111,7 @@ public class UserCtrl {
     }
 
     @GetMapping("/me")
-    public HttpEntity<?> getUserByUsername(@AuthenticationPrincipal User currentUser) {
-//        User currentUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        String username = authentication.getPrincipal().toString();
-//        if (userById == null) {
-//            return ResponseEntity.ok(new ApiResponse("Not Found", false, null));
-//        }
+    public HttpEntity<?> getInfoByMe(@AuthenticationPrincipal User currentUser) {
         currentUser.setPassword(null);
         return ResponseEntity.ok(new ApiResponse("", true, currentUser));
     }
@@ -130,48 +119,49 @@ public class UserCtrl {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_SUPER_ADMIN')")
     public HttpEntity<?> getUserById(@PathVariable Integer id) {
-        if (id==null) {
-            return ResponseEntity.badRequest().body(new ApiResponse("Id is null",false,null));
+        if (id == null) {
+            return ResponseEntity.badRequest().body(new ApiResponse("Id is null", false, null));
         }
         UserProjection userById = userService.getUserById(id);
-        if (userById!=null) {
-            return ResponseEntity.ok(new ApiResponse("",true,userById));
-        }
-        return ResponseEntity.badRequest().body(new ApiResponse("Not Found",false,null));
+        return ResponseEntity.ok(new ApiResponse("", true, userById));
     }
 
     @PutMapping
-//    @PreAuthorize("hasAnyRole('USER','ADMIN','SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER')")
     public HttpEntity<?> updateUser(@Valid @RequestPart UserDto userDto, BindingResult bindingResult, @RequestPart(required = false) MultipartFile image, @AuthenticationPrincipal User currentUser) {
-        System.out.println(currentUser);
+        if (userDto.getId() != currentUser.getId())
+            return ResponseEntity.badRequest().body(new ApiResponse("Somethign wrong!!!", false, null));
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(new ApiResponse("Validation", false, bindingResult.getAllErrors()));
         }
-        if (!currentUser.getUsername().equals(userDto.getUsername()))
-            if (userService.checkToUnique(userDto.getUsername())) {
-                return ResponseEntity.badRequest().body(new ApiResponse("This email has already exists", false, null));
-            }
         if (userDto.getId() == null) {
             return ResponseEntity.badRequest().body(new ApiResponse("Something wrong!!!", false, null));
         }
 
-        try {
-            userService.edit(userDto, image);
-            return ResponseEntity.ok(new ApiResponse("", true, null));
-        } catch (Exception e) {
-            return ResponseEntity.ok(new ApiResponse("User not found", false, null));
-        }
+        return userService.edit(userDto, image, currentUser);
     }
 
-    @PostMapping("/verify/{id}")
-    public HttpEntity<?> verify(@PathVariable Integer id){
-        if (id==null) {
-            return ResponseEntity.badRequest().body(new ApiResponse("Id is null",false,null));
+    @GetMapping("/verify/{id}")
+    public HttpEntity<?> verify(@PathVariable Integer id) {
+        if (id == null) {
+            return ResponseEntity.badRequest().body(new ApiResponse("Id is null", false, null));
         }
         boolean verify = userService.verify(id);
         if (verify) {
-            return ResponseEntity.ok(new ApiResponse("Accaunt successfully verified",true,false));
+            return ResponseEntity.ok(new ApiResponse("Accaunt successfully verified", true, false));
         }
-        return ResponseEntity.badRequest().body(new ApiResponse("User not found",false,null));
+        return ResponseEntity.badRequest().body(new ApiResponse("User not found", false, null));
     }
+
+    @PutMapping("/addrole")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
+    public HttpEntity<?> addRoleToUser(@RequestBody UserRoleDto userRoleDto){
+        return userService.changeRoleOfUser(userRoleDto);
+    }
+    @PutMapping("/addpermission")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
+    public HttpEntity<?> addPermissionToUser(@RequestBody UserRoleDto userRoleDto){
+        return userService.changePermissionOfUser(userRoleDto);
+    }
+
 }
