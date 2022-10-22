@@ -9,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 
 @AllArgsConstructor @NoArgsConstructor @Data @Builder
 public class CategoryDto {
+
     private Integer id;
     @NotBlank
     private String name;

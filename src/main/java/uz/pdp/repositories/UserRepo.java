@@ -7,8 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import uz.pdp.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import uz.pdp.projections.RoleProjection;
 import uz.pdp.projections.UserProjection;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepo extends JpaRepository<User,Integer> {
@@ -27,7 +29,13 @@ public interface UserRepo extends JpaRepository<User,Integer> {
 
     Optional<User> findByEmail(String email);
 
+    @Query(value = "select r.id as id, r.name as name from users u join user_role ur on u.id = ur.user_id join roles r on r.id = ur.role_id where u.id = :id"
+    ,nativeQuery = true)
+    List<RoleProjection> getUserRoles(int id);
 
+    @Query(value = "select p.id as id, p.name as name from users u join user_permission up on u.id = up.user_id join permissions p on p.id = up.permission_id where u.id = :id"
+            ,nativeQuery = true)
+    List<RoleProjection> getUserPermissions(int id);
     @Modifying
     @Transactional
     @Query(nativeQuery = true,

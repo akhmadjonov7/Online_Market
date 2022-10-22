@@ -14,8 +14,5 @@ public class ImageDataDto {
 
     private String photoName;
 
-    private String contentType;
-
-    private byte[] data;
 
 }

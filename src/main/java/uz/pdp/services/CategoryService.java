@@ -21,10 +21,12 @@ public class CategoryService {
 
     public void addCategory(CategoryDto categoryDto) {
         Category category = new Category();
-        category.setId(categoryDto.getId());
+        if (categoryDto.getId()!=null) category.setId(categoryDto.getId());
+        if (categoryDto.getParentId()!=null) {
+            Optional<Category> byId = categoryRepo.findById(categoryDto.getParentId());
+            byId.ifPresent(category::setParent);
+        }
         category.setName(categoryDto.getName());
-        Optional<Category> byId = categoryRepo.findById(categoryDto.getParentId());
-        byId.ifPresent(category::setParent);
         categoryRepo.save(category);
     }
 
