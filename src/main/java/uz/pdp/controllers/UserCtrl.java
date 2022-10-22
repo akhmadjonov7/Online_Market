@@ -60,7 +60,6 @@ public class UserCtrl {
     @SneakyThrows
     public void refresh(HttpServletResponse response, HttpServletRequest request) {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
-        System.out.println(authorizationHeader);
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             try {
                 String refreshToken = authorizationHeader.substring(7);

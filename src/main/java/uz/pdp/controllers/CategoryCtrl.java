@@ -31,7 +31,6 @@ public class CategoryCtrl {
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' , 'ROLE_SUPER_ADMIN')")
-
     public HttpEntity<?> addCategory(@Valid @RequestBody CategoryDto categoryDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) return ResponseEntity.badRequest().body(new ApiResponse("Validation error",false,bindingResult.getAllErrors()));
         if (categoryService.checkToUnique(categoryDto.getName())) return ResponseEntity.badRequest().body(new ApiResponse("Error", false, "This category has already exists!!!"));
