@@ -12,9 +12,12 @@ import uz.pdp.entities.CharacteristicValue;
 import uz.pdp.services.ChValueService;
 import uz.pdp.util.ApiResponse;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @RestController
@@ -23,10 +26,10 @@ public class ChValueCtrl {
     private final ChValueService chValueService;
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
-    public HttpEntity<?> addChValues(@Valid @RequestBody List<ChValueDto> chValueDtos, BindingResult bindingResult) {
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPER_ADMIN')")
+    public HttpEntity<?> addChValues(@RequestBody List<@Valid ChValueDto> chValueDtos, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
+            return ResponseEntity.badRequest().body(new ApiResponse("Validation",false,bindingResult.getAllErrors()));
         }
         List<ChValueDto> cannotAdd = new ArrayList<>();
         for (ChValueDto chValueDto : chValueDtos) {
@@ -34,6 +37,7 @@ public class ChValueCtrl {
                 chValueService.save(chValueDto);
             } catch (Exception e) {
                 cannotAdd.add(chValueDto);
+                System.out.println(e.getMessage());
             }
         }
         if (cannotAdd.size() == 0) {
@@ -43,7 +47,7 @@ public class ChValueCtrl {
     }
 
     @GetMapping("/edit")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' , 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> getAllValuesForEdit(@RequestParam(name = "size", defaultValue = "5") int size, @RequestParam(name = "page", defaultValue = "1") int page) {
         if (page<=0) page = 1;
         if (size<=0) size = 5;
@@ -61,7 +65,7 @@ public class ChValueCtrl {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' , 'ROLE_SUPER_ADMIN')")
 
     public HttpEntity<?> editChValue(@Valid @RequestBody ChValueDto chValueDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -75,7 +79,7 @@ public class ChValueCtrl {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('CAN_DELETE_CH_VALUE' or 'ROLE_SUPER_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('CAN_DELETE_CH_VALUE' , 'ROLE_SUPER_ADMIN')")
 
     public HttpEntity<?> deleteChValue(@PathVariable Integer id){
         boolean delete = chValueService.delete(id);
@@ -83,5 +87,19 @@ public class ChValueCtrl {
             return ResponseEntity.ok(new ApiResponse("Deleted!!!",true,null));
         }
         return ResponseEntity.badRequest().body(new ApiResponse("You cannot delete this value!!!", false, null));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<?> handle(ConstraintViolationException constraintViolationException) {
+        Set<ConstraintViolation<?>> violations = constraintViolationException.getConstraintViolations();
+        String errorMessage = "";
+        if (!violations.isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            violations.forEach(violation -> builder.append(" " + violation.getMessage()));
+            errorMessage = builder.toString();
+        } else {
+            errorMessage = "ConstraintViolationException occured.";
+        }
+        return ResponseEntity.badRequest().body(new ApiResponse("Validation", false, errorMessage));
     }
 }

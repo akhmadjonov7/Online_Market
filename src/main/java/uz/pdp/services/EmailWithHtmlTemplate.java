@@ -8,15 +8,12 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import uz.pdp.dtos.EmailDto;
-import uz.pdp.util.ApiResponse;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-
-//3.  TEMPLATE EMAIL YUBORISH (HTML PAGE)
 @Service
 @RequiredArgsConstructor
 @Primary
@@ -46,15 +43,11 @@ public class EmailWithHtmlTemplate implements EmailService {
             helper.setTo(emailDto.getTo());
             helper.setSubject(emailDto.getSubject());
             helper.setText(html, true);
-            // If you want you can also include attachment file with html template
-//            File file = ResourceUtils.getFile("classpath:static/java.jpeg");
-//            helper.addAttachment("image.jpeg", file);
-            
             mailSender.send(message);
 
         } catch (MessagingException e) {
             e.printStackTrace();
-            throw new IllegalStateException("Some went wrong!!!");
+            throw new IllegalStateException("Something went wrong!!!");
         }
     }
 }

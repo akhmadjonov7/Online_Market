@@ -8,7 +8,6 @@ import uz.pdp.entities.Brand;
 import uz.pdp.projections.BrandProjection;
 import uz.pdp.projections.BrandProjectionById;
 
-import java.util.List;
 import java.util.Optional;
 
 
@@ -31,18 +30,6 @@ public interface BrandRepo extends JpaRepository<Brand,Integer> {
             " from brands b join images i on b.image_id = i.id where b.id = :id",
             nativeQuery = true)
     Optional<BrandProjectionById> getBrandById(int id);
-
-    @Query(value = "select b.id as id," +
-            "b.name as name," +
-            "b.owner as owner, " +
-            "b.about as about where b.id = :id",
-            nativeQuery = true)
-    Optional<BrandProjection> getBrandByIdWithoutImage(int id);
-
-
-    @Query(value = "select image_id from brands where id = :id",
-            nativeQuery = true)
-    Integer getBrandImageId(Integer id);
 
     @Query(value = "select id from brands where name = :name",nativeQuery = true)
     Integer  getBrandByName(String name);

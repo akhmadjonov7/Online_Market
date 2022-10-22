@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Data
 @Builder
 @EqualsAndHashCode(callSuper = true)
-@Table(uniqueConstraints={
+@Table(uniqueConstraints = {
         @UniqueConstraint(columnNames = {"characteristic_id", "characteristic_value_id"})
 })
 public class CharacteristicsChValues extends AbsEntity {
@@ -21,8 +21,6 @@ public class CharacteristicsChValues extends AbsEntity {
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     private CharacteristicValue characteristicValue;
-
-
 
 
 }

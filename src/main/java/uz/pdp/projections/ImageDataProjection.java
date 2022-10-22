@@ -5,5 +5,4 @@ public interface ImageDataProjection {
 
     Integer getId();
 
-    String getContentType();
 }

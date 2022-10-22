@@ -50,15 +50,16 @@ public class ProductService {
                 .build();
         if (productDto.getId()!=null) product.setId(productDto.getId());
         product.setName(productDto.getName());
-        if (imageList == null) {
+        System.out.println(imageList.isEmpty());
+        if (imageList.size() == 0) {
             Path path = Paths.get("src/main/resources/image/download.png");
             MultipartFile defaultImage = new MockMultipartFile("download.png", "download.png",
                     "image/png", Files.readAllBytes(path));
-            ImageData saveImage = imageService.save(defaultImage);
+            ImageData saveImage = imageService.save(defaultImage, productDto.getName());
             product.setImage(List.of(saveImage));
             product.setMainImage(saveImage);
         } else {
-            List<ImageData> saveImage = imageService.saveAll(imageList);
+            List<ImageData> saveImage = imageService.saveAll(imageList, product.getName());
             product.setImage(saveImage);
             product.setMainImage(saveImage.get(0));
         }
@@ -69,10 +70,9 @@ public class ProductService {
         }
         product.setCharacteristicsChValues(characteristicsChValues);
         try {
-            Product save = productRepo.save(product);
-            return save;
+            return productRepo.save(product);
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException("User don't save!!!");
         }
     }
     public void delete(int id){
@@ -120,15 +120,6 @@ public class ProductService {
             file.delete();
         }
         productRepo.save(product);
-    }
-
-    public boolean addAmount(Integer id, Integer amount) {
-        try {
-            productRepo.addAmount(amount,id);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     public boolean checkToUnique(String name) {

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import uz.pdp.dtos.CategoryDto;
 import uz.pdp.entities.Category;
 import uz.pdp.util.ApiResponse;
 import uz.pdp.services.CategoryService;
@@ -29,17 +30,17 @@ public class CategoryCtrl {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' , 'ROLE_SUPER_ADMIN')")
 
-    public HttpEntity<?> addCategory(@Valid @RequestBody Category category, BindingResult bindingResult) {
+    public HttpEntity<?> addCategory(@Valid @RequestBody CategoryDto categoryDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) return ResponseEntity.badRequest().body(new ApiResponse("Validation error",false,bindingResult.getAllErrors()));
-        if (categoryService.checkToUnique(category.getName())) return ResponseEntity.badRequest().body(new ApiResponse("Error", false, "This category has already exists!!!"));
-        categoryService.addCategory(category);
+        if (categoryService.checkToUnique(categoryDto.getName())) return ResponseEntity.badRequest().body(new ApiResponse("Error", false, "This category has already exists!!!"));
+        categoryService.addCategory(categoryDto);
         return ResponseEntity.ok(new ApiResponse("", true, null));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('CAN_DELETE_CATEGORY' or 'ROLE_SUPER_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('CAN_DELETE_CATEGORY' , 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> deleteCategory(@PathVariable int id) {
         boolean delete = categoryService.deleteCategory(id);
         if (delete) {
@@ -50,12 +51,13 @@ public class CategoryCtrl {
 
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
-    public HttpEntity<?> editCategory(@Valid @RequestBody Category category,BindingResult bindingResult) {
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' , 'ROLE_SUPER_ADMIN')")
+    public HttpEntity<?> editCategory(@Valid @RequestBody CategoryDto categoryDto,BindingResult bindingResult) {
         if (bindingResult.hasErrors()) return ResponseEntity.badRequest().body(new ApiResponse("Validation error",false,bindingResult.getAllErrors()));
-        if (categoryService.checkToUnique(category.getName())) return ResponseEntity.badRequest().body(new ApiResponse("Error", false, "This category has already exists!!!"));
+        Category categoryServiceById = categoryService.getById(categoryDto.getId());
+        if(!categoryServiceById.getName().equals(categoryDto.getName())) if (categoryService.checkToUnique(categoryDto.getName())) return ResponseEntity.badRequest().body(new ApiResponse("Error", false, "This category has already exists!!!"));
         try {
-            categoryService.addCategory(category);
+            categoryService.addCategory(categoryDto);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse("Not Found", false, null));
         }

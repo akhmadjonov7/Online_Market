@@ -17,7 +17,7 @@ public class ChValueDto {
     private Integer id;
     @NotBlank
     private String value;
-    @NotNull
     @Min(1)
+    @NotNull
     private Integer characteristicId;
 }

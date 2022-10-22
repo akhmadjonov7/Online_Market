@@ -1,6 +1,8 @@
 package uz.pdp.services;
 
 import lombok.SneakyThrows;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -9,16 +11,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 import uz.pdp.dtos.EmailDto;
 import uz.pdp.dtos.UserDto;
+import uz.pdp.dtos.UserRoleDto;
 import uz.pdp.entities.ImageData;
+import uz.pdp.entities.Permission;
 import uz.pdp.entities.Role;
 import uz.pdp.entities.User;
 import uz.pdp.projections.UserProjection;
+import uz.pdp.repositories.PermissionRepo;
 import uz.pdp.repositories.RoleRepo;
 import uz.pdp.repositories.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import uz.pdp.util.ApiResponse;
+import uz.pdp.util.PermissionEnum;
 import uz.pdp.util.RoleEnum;
 
 import java.io.File;
@@ -37,6 +44,8 @@ public class UserService implements UserDetailsService {
     private final UserRepo  userRepo;
     private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
+
+    private final PermissionRepo permissionRepo;
     private final RoleRepo roleRepo;
     private final EmailWithHtmlTemplate emailWithHtmlTemplate;
 
@@ -46,25 +55,29 @@ public class UserService implements UserDetailsService {
         User user = User
                 .builder()
                 .fullName(userDto.getFullName())
-                .username(userDto.getUsername())
+                .email(userDto.getEmail())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .roles(roles)
                 .build();
-        if (image != null) {
-            ImageData logo = imageService.save(image);
-            user.setImage(logo);
-        } else {
-            Path path = Paths.get("src/main/resources/image/download.png");
-            MultipartFile defaultImage = new MockMultipartFile("download.png", "download.png",
-                    "image/png", Files.readAllBytes(path));
-            ImageData save = imageService.save(defaultImage);
-            user.setImage(save);
-        }
-
+        saveImage(userDto, image, user);
 
         userRepo.save(user);
-        EmailDto emailDto = new EmailDto(user.getUsername(),"Verify","Hi Verify you email",user.getFullName(), user.getId());
-        emailWithHtmlTemplate.sendEmail(emailDto);
+        EmailDto emailDto = new EmailDto(user.getEmail(),"Verify","Hi Verify you email",user.getFullName(), user.getId());
+        new Thread(() -> emailWithHtmlTemplate.sendEmail(emailDto)).start();
+
+    }
+
+    private void saveImage(UserDto userDto, MultipartFile image, User user) throws IOException {
+        if (image != null) {
+            ImageData logo = imageService.save(image,userDto.getEmail());
+            user.setImage(logo);
+        } else {
+            Path path = Paths.get("src/main/resources/image/user.png");
+            MultipartFile defaultImage = new MockMultipartFile("user.png", "user.png",
+                    "image/png", Files.readAllBytes(path));
+            ImageData save = imageService.save(defaultImage,userDto.getEmail());
+            user.setImage(save);
+        }
     }
 
     public Page<UserProjection> getAllUsers(int page, int size) {
@@ -72,57 +85,44 @@ public class UserService implements UserDetailsService {
     }
 
     public boolean delete(int id) {
+        User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not Found"));
+        user.setEnabled(false);
         try {
-            userRepo.deleteById(id);
+            userRepo.save(user);
             return true;
         } catch (Exception e) {
-            return false;
+            throw new RuntimeException(e);
         }
     }
 
     public UserProjection getUserById(int id) {
-        Optional<UserProjection> userById = userRepo.getUserById(id);
-        return userById.get();
+        return userRepo.getUserById(id).orElseThrow(() -> new RuntimeException("User not Found") );
     }
 
-    public boolean checkToUnique(String username) {
-        return userRepo.checkToUnique(username)!=null;
+    public boolean checkToUnique(String email) {
+        return userRepo.checkToUnique(email)!=null;
     }
 
     @SneakyThrows
-    public void edit(UserDto userDto, MultipartFile image) {
-        List<Role> allById = roleRepo.findAllById(userDto.getRolesId());
-        Set<Role> roles = new HashSet<>(allById);
-        User user = User.builder()
-                .fullName(userDto.getFullName())
-                .username(userDto.getUsername())
-                .roles(roles)
-                .password(passwordEncoder.encode(userDto.getPassword()))
-                .isEnabled(true)
-                .build();
+    public HttpEntity<ApiResponse> edit(UserDto userDto, MultipartFile image, User currentUser) {
+        User user = userRepo.findById(currentUser.getId()).orElseThrow(() -> new RuntimeException("User not Found"));
         user.setId(userDto.getId());
-        Optional<UserProjection> userById = userRepo.getUserById(user.getId());
-        File file = new File(UPLOAD_DIRECTORY + userById.get().getPhotoName());
-        file.delete();
-        if (image != null) {
-            ImageData logo = imageService.save(image);
-            user.setImage(logo);
-        } else {
-            Path path = Paths.get("src/main/resources/image/download.png");
-            MultipartFile defaultImage = new MockMultipartFile("download.png", "download.png",
-                    "image/png", Files.readAllBytes(path));
-            ImageData save = imageService.save(defaultImage);
-            user.setImage(save);
+        UserProjection userProjection = userRepo.getUserById(user.getId()).orElseThrow(() -> new RuntimeException("User not found"));
+        new File(UPLOAD_DIRECTORY + userProjection.getPhotoName()).delete();
+        saveImage(userDto, image, user);
+        try {
+            userRepo.save(user);
+            return ResponseEntity.ok(new ApiResponse("Edited", true, null));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
-//        imageService.save(image);
-        userRepo.save(user);
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = userRepo.findByUsername(username);
-        if (user.isEmpty()) throw new RuntimeException("User not found");
-        return user.get();
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        if (!user.isEnabled()) throw new RuntimeException("Verify email");
+        return user;
     }
 
     public boolean verify(Integer id) {
@@ -132,6 +132,35 @@ public class UserService implements UserDetailsService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public HttpEntity<?> changeRoleOfUser(UserRoleDto userRoleDto) {
+        User user = userRepo.findById(userRoleDto.getUserId()).orElseThrow(() -> new RuntimeException("User not Found"));
+        Set<Role> roles = user.getRoles();
+        user.getRoles().clear();
+        userRepo.save(user);
+        roles.add(roleRepo.findByName(RoleEnum.ROLE_USER));
+        for (Integer roleId : userRoleDto.getRoleIds()) {
+            RoleEnum role = RoleEnum.of(roleId);
+            Role roleFromDb = roleRepo.findByName(role);
+            roles.add(roleFromDb);
+        }
+        user.setRoles(roles);
+        userRepo.save(user);
+        return ResponseEntity.ok(new ApiResponse("Roles added!!!",true,null));
+    }
+    public HttpEntity<?> changePermissionOfUser(UserRoleDto userRoleDto) {
+        User user = userRepo.findById(userRoleDto.getUserId()).orElseThrow(() -> new RuntimeException("User not Found"));
+        Set<Permission> permissions = user.getPermissions();
+        user.getPermissions().clear();
+        userRepo.save(user);
+        for (Integer permissionId : userRoleDto.getPermissionIds()) {
+            PermissionEnum permission = PermissionEnum.of(permissionId);
+            permissions.add(permissionRepo.findByName(permission));
+        }
+        user.setPermissions(permissions);
+        userRepo.save(user);
+        return ResponseEntity.ok(new ApiResponse("Permissions added!!!",true,null));
     }
 }
 

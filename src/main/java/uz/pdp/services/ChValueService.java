@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import uz.pdp.dtos.ChValueDto;
 import uz.pdp.entities.Characteristic;
 import uz.pdp.entities.CharacteristicValue;

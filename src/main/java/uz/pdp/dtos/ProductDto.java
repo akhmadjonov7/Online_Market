@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import uz.pdp.entities.CharacteristicsChValues;
 import uz.pdp.projections.ImageDataProjection;
 
 import javax.validation.constraints.Min;

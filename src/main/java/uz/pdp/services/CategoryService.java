@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import uz.pdp.dtos.CategoryDto;
 import uz.pdp.entities.Category;
 import uz.pdp.repositories.CategoryRepo;
 
@@ -18,8 +19,13 @@ public class CategoryService {
         return categoryRepo.findAll(PageRequest.of(page-1, size));
     }
 
-    public void addCategory(Category category) {
-            categoryRepo.save(category);
+    public void addCategory(CategoryDto categoryDto) {
+        Category category = new Category();
+        category.setId(categoryDto.getId());
+        category.setName(categoryDto.getName());
+        Optional<Category> byId = categoryRepo.findById(categoryDto.getParentId());
+        byId.ifPresent(category::setParent);
+        categoryRepo.save(category);
     }
 
 

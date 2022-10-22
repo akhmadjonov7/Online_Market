@@ -37,13 +37,13 @@ public class BrandService {
     @SneakyThrows
     public void save(Brand brand, MultipartFile image) {
         if (image != null) {
-            ImageData logo = imageService.save(image);
+            ImageData logo = imageService.save(image,brand.getName());
             brand.setImage(logo);
         } else {
             Path path = Paths.get("src/main/resources/image/download.png");
             MultipartFile defaultImage = new MockMultipartFile("download.png", "download.png",
                     "image/png", Files.readAllBytes(path));
-            ImageData save = imageService.save(defaultImage);
+            ImageData save = imageService.save(defaultImage,brand.getName());
             brand.setImage(save);
         }
         brandRepo.save(brand);
@@ -76,7 +76,6 @@ public class BrandService {
     @SneakyThrows
     public void edit(Brand brand, MultipartFile image) {
         BrandProjectionById brandById = getBrandById(brand.getId());
-        imageRepo.deleteById(brandById.getImageId());
         File file = new File(UPLOAD_DIRECTORY + brandById.getImagePath());
         file.delete();
         save(brand, image);

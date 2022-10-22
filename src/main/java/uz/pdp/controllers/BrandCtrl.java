@@ -1,11 +1,9 @@
 package uz.pdp.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -16,6 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 import uz.pdp.projections.BrandProjection;
 import uz.pdp.entities.Brand;
 import uz.pdp.projections.BrandProjectionById;
+import uz.pdp.repositories.ImageRepo;
+import uz.pdp.services.ImageService;
 import uz.pdp.util.ApiResponse;
 import uz.pdp.services.BrandService;
 
@@ -26,16 +26,17 @@ import javax.validation.Valid;
 @RequestMapping("/api/brands")
 public class BrandCtrl {
     private final BrandService brandService;
+    private final ImageRepo imageRepo;
 
     @SneakyThrows
     @Transactional
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' , 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> saveBrand(@Valid @RequestPart Brand brand, BindingResult bindingResult, @RequestPart(name = "image", required = false) MultipartFile image) {
         if (bindingResult.hasErrors())  return ResponseEntity.badRequest().body(new ApiResponse("Validation error", false, bindingResult.getAllErrors()));
         if (brandService.checkToUnique(brand.getName())) return ResponseEntity.badRequest().body(new ApiResponse("Error", false, "This brand  has already exists!!!"));
         brandService.save(brand, image);
-        return ResponseEntity.ok(new ApiResponse("", true, null));
+        return ResponseEntity.ok(new ApiResponse("Brand saved!!!", true, null));
     }
 
     @GetMapping
@@ -48,7 +49,7 @@ public class BrandCtrl {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('CAN_DELETE_BRAND' or 'ROLE_SUPER_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('CAN_DELETE_BRAND' , 'ROLE_SUPER_ADMIN')")
 
     public HttpEntity<?> delete(@PathVariable int id) {
         boolean delete = brandService.delete(id);
@@ -64,12 +65,14 @@ public class BrandCtrl {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' or 'ROLE_SUPER_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN' , 'ROLE_SUPER_ADMIN')")
     public HttpEntity<?> editBrand(@Valid @RequestPart("brand") Brand brand, BindingResult bindingResult, @RequestPart(name = "image", required = false) MultipartFile image) {
         if (bindingResult.hasErrors())  return ResponseEntity.badRequest().body(new ApiResponse("Validation error", false, bindingResult.getAllErrors()));
-        if (brandService.checkToUnique(brand.getName()))    return ResponseEntity.badRequest().body(new ApiResponse("Error", false, "This brand  has already exists!!!"));
+        BrandProjectionById brandById = brandService.getBrandById(brand.getId());
+        if (!brandById.getName().equals(brand.getName())) if (brandService.checkToUnique(brand.getName()))    return ResponseEntity.badRequest().body(new ApiResponse("Error", false, "This brand  has already exists!!!"));
         try {
             brandService.edit(brand, image);
+            imageRepo.deleteById(brandById.getImageId());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse("Not Found", false, null));
         }

@@ -6,7 +6,7 @@
     <title>Verify</title>
 </head>
 <body>
-<form th:action="@{'http://localhost/api/users/verify/' + ${id}}" method="post">
+<form th:action="@{'http://localhost/api/users/verify/' + ${id}}" method="get">
     <h1 th:text="${message}"></h1>
     <button type="submit" th:text="Verify"></button>
 </form>

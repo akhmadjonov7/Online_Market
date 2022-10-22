@@ -15,6 +15,4 @@ public class ImageData extends AbsEntity {
 
     private String photoName;
 
-    private String contentType;
-
 }

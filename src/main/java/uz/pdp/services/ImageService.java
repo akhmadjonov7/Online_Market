@@ -21,15 +21,14 @@ public class ImageService {
     private final ImageRepo imageRepo;
     private final ProductRepo productRepo;
 
-    public ImageData save(MultipartFile image) {
+    public ImageData save(MultipartFile image, String name) {
         ImageData imageData = new ImageData();
-        imageData.setContentType(image.getContentType());
         File uploadDir = new File(UPLOAD_DIRECTORY);
         if (!uploadDir.exists())
             uploadDir.mkdirs();
         int index = image.getOriginalFilename().lastIndexOf('.');
         String extension = image.getOriginalFilename().substring(index + 1);
-        String imgName = System.currentTimeMillis() + "." + extension;
+        String imgName = name + "." + extension;
         String imgPath = uploadDir.getPath() + "/" + imgName;
         try {
             image.transferTo(Path.of(imgPath));
@@ -41,17 +40,18 @@ public class ImageService {
     }
 
 
-    public List<ImageData> saveAll(List<MultipartFile> imageList) {
+    public List<ImageData> saveAll(List<MultipartFile> imageList, String name) {
         List<ImageData> imageDataList = new ArrayList<>();
-        for (MultipartFile image : imageList) {
-            ImageData imageData = new ImageData();
-            imageData.setContentType(image.getContentType());
+        for (int i = 0; i < imageList.size(); i++)
+         {
+             MultipartFile image = imageList.get(i);
+             ImageData imageData = new ImageData();
             File uploadDir = new File(UPLOAD_DIRECTORY);
             if (!uploadDir.exists())
                 uploadDir.mkdirs();
             int index = image.getOriginalFilename().lastIndexOf('.');
             String extension = image.getOriginalFilename().substring(index + 1);
-            String imgName = System.currentTimeMillis() + "." + extension;
+            String imgName = name + "(" + (i+1) + ")." + extension;
             String imgPath = uploadDir.getPath() + "/" + imgName;
             try {
                 image.transferTo(Path.of(imgPath));
